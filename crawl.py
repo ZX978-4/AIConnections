@@ -19,7 +19,7 @@ for m in models:
         "library_name" : m.library_name if m.library_name else "未知框架",
         "base_model": "无",
         # "dataset_deps": [],
-        # "tags": ",".join(m.tags) if m.tags else "无标签"
+        "tags": ",".join(m.tags) if m.tags else "无标签"
     }
 
     #获取base_model和dataset_deps

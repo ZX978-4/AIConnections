@@ -1,9 +1,16 @@
 [
     {
-        "id":"sentence-transformers\/all-MiniLM-L6-v2",
-        "downloads":193852930,
+        "model_id":"sentence-transformers\/all-MiniLM-L6-v2",
+        "downloads":206994378,
         "library_name":"sentence-transformers",
-        "base_model":"无",
+        "tags":"sentence-transformers,pytorch,tf,rust,onnx,safetensors,openvino,bert,feature-extraction,sentence-similarity,transformers,en,dataset:s2orc,dataset:flax-sentence-embeddings\/stackexchange_xml,dataset:ms_marco,dataset:gooaq,dataset:yahoo_answers_topics,dataset:code_search_net,dataset:search_qa,dataset:eli5,dataset:snli,dataset:multi_nli,dataset:wikihow,dataset:natural_questions,dataset:trivia_qa,dataset:embedding-data\/sentence-compression,dataset:embedding-data\/flickr30k-captions,dataset:embedding-data\/altlex,dataset:embedding-data\/simple-wiki,dataset:embedding-data\/QQP,dataset:embedding-data\/SPECTER,dataset:embedding-data\/PAQ_pairs,dataset:embedding-data\/WikiAnswers,arxiv:1904.06472,arxiv:2102.07033,arxiv:2104.08727,arxiv:1704.05179,arxiv:1810.09305,license:apache-2.0,eval-results,text-embeddings-inference,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"bert-base-uncased",
+        "base_from_multi":"无",
+        "base_model_final":"bert-base-uncased",
+        "is_multimodal":false,
         "dataset_deps":[
             "s2orc",
             "flax-sentence-embeddings\/stackexchange_xml",
@@ -26,41 +33,73 @@
             "embedding-data\/SPECTER",
             "embedding-data\/PAQ_pairs",
             "embedding-data\/WikiAnswers"
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"google-bert\/bert-base-uncased",
-        "downloads":62065665,
+        "model_id":"google-bert\/bert-base-uncased",
+        "downloads":72315930,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,tf,jax,rust,coreml,onnx,safetensors,bert,fill-mask,exbert,en,dataset:bookcorpus,dataset:wikipedia,arxiv:1810.04805,license:apache-2.0,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"bert-base-uncased",
+        "base_from_type":"bert-base-uncased",
+        "base_from_multi":"无",
+        "base_model_final":"bert-base-uncased",
+        "is_multimodal":false,
         "dataset_deps":[
             "bookcorpus",
             "wikipedia"
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"google\/electra-base-discriminator",
-        "downloads":48365476,
+        "model_id":"google\/electra-base-discriminator",
+        "downloads":50904691,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,tf,jax,rust,electra,pretraining,en,arxiv:1406.2661,license:apache-2.0,endpoints_compatible,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"基座模型",
+        "is_multimodal":false,
         "dataset_deps":[
 
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"Falconsai\/nsfw_image_detection",
-        "downloads":41090032,
+        "model_id":"Falconsai\/nsfw_image_detection",
+        "downloads":41155377,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,safetensors,vit,image-classification,arxiv:2010.11929,license:apache-2.0,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"google\/vit-base-patch16-224",
+        "base_from_multi":"无",
+        "base_model_final":"google\/vit-base-patch16-224",
+        "is_multimodal":false,
         "dataset_deps":[
 
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"sentence-transformers\/all-mpnet-base-v2",
-        "downloads":27176348,
+        "model_id":"sentence-transformers\/all-mpnet-base-v2",
+        "downloads":28344265,
         "library_name":"sentence-transformers",
-        "base_model":"无",
+        "tags":"sentence-transformers,pytorch,onnx,safetensors,openvino,mpnet,fill-mask,feature-extraction,sentence-similarity,transformers,text-embeddings-inference,en,dataset:s2orc,dataset:flax-sentence-embeddings\/stackexchange_xml,dataset:ms_marco,dataset:gooaq,dataset:yahoo_answers_topics,dataset:code_search_net,dataset:search_qa,dataset:eli5,dataset:snli,dataset:multi_nli,dataset:wikihow,dataset:natural_questions,dataset:trivia_qa,dataset:embedding-data\/sentence-compression,dataset:embedding-data\/flickr30k-captions,dataset:embedding-data\/altlex,dataset:embedding-data\/simple-wiki,dataset:embedding-data\/QQP,dataset:embedding-data\/SPECTER,dataset:embedding-data\/PAQ_pairs,dataset:embedding-data\/WikiAnswers,arxiv:1904.06472,arxiv:2102.07033,arxiv:2104.08727,arxiv:1704.05179,arxiv:1810.09305,license:apache-2.0,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"基座模型",
+        "is_multimodal":false,
         "dataset_deps":[
             "s2orc",
             "flax-sentence-embeddings\/stackexchange_xml",
@@ -83,932 +122,266 @@
             "embedding-data\/SPECTER",
             "embedding-data\/PAQ_pairs",
             "embedding-data\/WikiAnswers"
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"FacebookAI\/xlm-roberta-base",
-        "downloads":25359351,
-        "library_name":"transformers",
-        "base_model":"无",
+        "model_id":"sentence-transformers\/paraphrase-multilingual-MiniLM-L12-v2",
+        "downloads":26182211,
+        "library_name":"sentence-transformers",
+        "tags":"sentence-transformers,pytorch,tf,onnx,safetensors,openvino,bert,feature-extraction,sentence-similarity,transformers,multilingual,ar,bg,ca,cs,da,de,el,en,es,et,fa,fi,fr,gl,gu,he,hi,hr,hu,hy,id,it,ja,ka,ko,ku,lt,lv,mk,mn,mr,ms,my,nb,nl,pl,pt,ro,ru,sk,sl,sq,sr,sv,th,tr,uk,ur,vi,arxiv:1908.10084,license:apache-2.0,text-embeddings-inference,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"bert-base-uncased",
+        "base_from_multi":"无",
+        "base_model_final":"bert-base-uncased",
+        "is_multimodal":false,
         "dataset_deps":[
 
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"timm\/mobilenetv3_small_100.lamb_in1k",
-        "downloads":24201189,
+        "model_id":"laion\/clap-htsat-fused",
+        "downloads":26054290,
+        "library_name":"transformers",
+        "tags":"transformers,pytorch,safetensors,clap,feature-extraction,zero-shot audio classification,zero-shot audio retrieval,audio-classification,en,arxiv:2211.06687,license:apache-2.0,endpoints_compatible,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"多模态内部组件",
+        "base_model_final":"多模态内部组件",
+        "is_multimodal":true,
+        "dataset_deps":[
+
+        ],
+        "status":"ok"
+    },
+    {
+        "model_id":"openai\/clip-vit-large-patch14",
+        "downloads":22482658,
+        "library_name":"transformers",
+        "tags":"transformers,pytorch,tf,jax,safetensors,clip,zero-shot-image-classification,vision,arxiv:2103.00020,arxiv:1908.04913,endpoints_compatible,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"openai\/clip-vit-base-patch32",
+        "base_from_multi":"多模态内部组件",
+        "base_model_final":"openai\/clip-vit-base-patch32",
+        "is_multimodal":true,
+        "dataset_deps":[
+
+        ],
+        "status":"ok"
+    },
+    {
+        "model_id":"timm\/mobilenetv3_small_100.lamb_in1k",
+        "downloads":21095652,
         "library_name":"timm",
-        "base_model":"无",
+        "tags":"timm,pytorch,safetensors,image-classification,transformers,dataset:imagenet-1k,arxiv:2110.00476,arxiv:1905.02244,license:apache-2.0,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"基座模型",
+        "is_multimodal":false,
         "dataset_deps":[
             "imagenet-1k"
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"sentence-transformers\/paraphrase-multilingual-MiniLM-L12-v2",
-        "downloads":21903389,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"FacebookAI\/roberta-large",
-        "downloads":21808978,
+        "model_id":"FacebookAI\/xlm-roberta-base",
+        "downloads":20575069,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,tf,jax,onnx,safetensors,xlm-roberta,fill-mask,exbert,multilingual,af,am,ar,as,az,be,bg,bn,br,bs,ca,cs,cy,da,de,el,en,eo,es,et,eu,fa,fi,fr,fy,ga,gd,gl,gu,ha,he,hi,hr,hu,hy,id,is,it,ja,jv,ka,kk,km,kn,ko,ku,ky,la,lo,lt,lv,mg,mk,ml,mn,mr,ms,my,ne,nl,no,om,or,pa,pl,ps,pt,ro,ru,sa,sd,si,sk,sl,so,sq,sr,su,sv,sw,ta,te,th,tl,tr,ug,uk,ur,uz,vi,xh,yi,zh,arxiv:1911.02116,license:mit,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"roberta-base",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"roberta-base",
+        "is_multimodal":false,
         "dataset_deps":[
-            "bookcorpus",
-            "wikipedia"
-        ]
+
+        ],
+        "status":"ok"
     },
     {
-        "id":"laion\/clap-htsat-fused",
-        "downloads":20339955,
+        "model_id":"openai\/clip-vit-base-patch32",
+        "downloads":20300278,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,tf,jax,clip,zero-shot-image-classification,vision,arxiv:2103.00020,arxiv:1908.04913,endpoints_compatible,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"openai\/clip-vit-base-patch32",
+        "base_from_multi":"多模态内部组件",
+        "base_model_final":"openai\/clip-vit-base-patch32",
+        "is_multimodal":true,
         "dataset_deps":[
 
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"Qwen\/Qwen2.5-7B-Instruct",
-        "downloads":20083761,
+        "model_id":"Qwen\/Qwen2.5-7B-Instruct",
+        "downloads":19626645,
         "library_name":"transformers",
-        "base_model":"Qwen\/Qwen2.5-7B",
+        "tags":"transformers,safetensors,qwen2,text-generation,chat,conversational,en,arxiv:2309.00071,arxiv:2407.10671,base_model:Qwen\/Qwen2.5-7B,base_model:finetune:Qwen\/Qwen2.5-7B,license:apache-2.0,text-generation-inference,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"Qwen\/Qwen2.5-7B",
+        "base_from_config":"无",
+        "base_from_id":"qwen\/Qwen-qwen2.57b",
+        "base_from_type":"Qwen\/Qwen2-7B",
+        "base_from_multi":"无",
+        "base_model_final":"Qwen\/Qwen2.5-7B",
+        "is_multimodal":false,
         "dataset_deps":[
 
-        ]
+        ],
+        "status":"ok"
     },
     {
-        "id":"openai\/clip-vit-base-patch32",
-        "downloads":19685773,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"BAAI\/bge-m3",
-        "downloads":18569270,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"amazon\/chronos-2",
-        "downloads":17862046,
-        "library_name":"chronos-forecasting",
-        "base_model":"无",
-        "dataset_deps":[
-            "autogluon\/chronos_datasets",
-            "Salesforce\/GiftEvalPretrain"
-        ]
-    },
-    {
-        "id":"Bingsu\/adetailer",
-        "downloads":16436222,
+        "model_id":"Bingsu\/adetailer",
+        "downloads":18758645,
         "library_name":"ultralytics",
-        "base_model":"无",
+        "tags":"ultralytics,pytorch,dataset:wider_face,dataset:skytnt\/anime-segmentation,doi:10.57967\/hf\/3633,license:apache-2.0,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"基座模型",
+        "is_multimodal":false,
         "dataset_deps":[
             "wider_face",
             "skytnt\/anime-segmentation"
-        ]
-    },
-    {
-        "id":"pyannote\/wespeaker-voxceleb-resnet34-LM",
-        "downloads":15875316,
-        "library_name":"pyannote-audio",
-        "base_model":"无",
-        "dataset_deps":[
-            "voxceleb"
-        ]
-    },
-    {
-        "id":"pyannote\/segmentation-3.0",
-        "downloads":15601823,
-        "library_name":"pyannote-audio",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"alana89\/TabSTAR",
-        "downloads":14884063,
-        "library_name":"未知框架",
-        "base_model":[
-            "intfloat\/e5-small-v2"
         ],
-        "dataset_deps":[
-
-        ]
+        "status":"ok"
     },
     {
-        "id":"pyannote\/speaker-diarization-3.1",
-        "downloads":13725464,
-        "library_name":"pyannote-audio",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-VL-2B-Instruct",
-        "downloads":13275392,
+        "model_id":"FacebookAI\/roberta-large",
+        "downloads":18705267,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,tf,jax,onnx,safetensors,roberta,fill-mask,exbert,en,dataset:bookcorpus,dataset:wikipedia,arxiv:1907.11692,arxiv:1806.02847,license:mit,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"roberta-base",
+        "base_from_multi":"无",
+        "base_model_final":"roberta-base",
+        "is_multimodal":false,
         "dataset_deps":[
-
-        ]
+            "bookcorpus",
+            "wikipedia"
+        ],
+        "status":"ok"
     },
     {
-        "id":"colbert-ir\/colbertv2.0",
-        "downloads":13135937,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"cross-encoder\/ms-marco-MiniLM-L6-v2",
-        "downloads":13072987,
+        "model_id":"BAAI\/bge-m3",
+        "downloads":15614645,
         "library_name":"sentence-transformers",
-        "base_model":[
-            "cross-encoder\/ms-marco-MiniLM-L12-v2"
+        "tags":"sentence-transformers,pytorch,onnx,xlm-roberta,feature-extraction,sentence-similarity,arxiv:2402.03216,arxiv:2004.04906,arxiv:2106.14807,arxiv:2107.05720,arxiv:2004.12832,license:mit,eval-results,text-embeddings-inference,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"基座模型",
+        "is_multimodal":false,
+        "dataset_deps":[
+
         ],
+        "status":"ok"
+    },
+    {
+        "model_id":"cross-encoder\/ms-marco-MiniLM-L6-v2",
+        "downloads":14309926,
+        "library_name":"sentence-transformers",
+        "tags":"sentence-transformers,pytorch,jax,onnx,safetensors,openvino,bert,text-classification,transformers,text-ranking,en,dataset:sentence-transformers\/msmarco,base_model:cross-encoder\/ms-marco-MiniLM-L12-v2,base_model:quantized:cross-encoder\/ms-marco-MiniLM-L12-v2,license:apache-2.0,text-embeddings-inference,endpoints_compatible,region:us",
+        "base_from_card":"['cross-encoder\/ms-marco-MiniLM-L12-v2']",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"bert-base-uncased",
+        "base_from_multi":"无",
+        "base_model_final":"['cross-encoder\/ms-marco-MiniLM-L12-v2']",
+        "is_multimodal":false,
         "dataset_deps":[
             "sentence-transformers\/msmarco"
-        ]
-    },
-    {
-        "id":"Xenova\/paraphrase-multilingual-MiniLM-L12-v2",
-        "downloads":12226447,
-        "library_name":"transformers.js",
-        "base_model":"sentence-transformers\/paraphrase-multilingual-MiniLM-L12-v2",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-0.6B",
-        "downloads":11202195,
-        "library_name":"transformers",
-        "base_model":[
-            "Qwen\/Qwen3-0.6B-Base"
         ],
-        "dataset_deps":[
-
-        ]
+        "status":"ok"
     },
     {
-        "id":"omni-research\/Tarsier2-Recap-7b",
-        "downloads":10717931,
-        "library_name":"未知框架",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"FacebookAI\/roberta-base",
-        "downloads":10105722,
+        "model_id":"FacebookAI\/roberta-base",
+        "downloads":14258535,
         "library_name":"transformers",
-        "base_model":"无",
+        "tags":"transformers,pytorch,tf,jax,rust,safetensors,roberta,fill-mask,exbert,en,dataset:bookcorpus,dataset:wikipedia,arxiv:1907.11692,arxiv:1806.02847,license:mit,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"roberta-base",
+        "base_from_type":"roberta-base",
+        "base_from_multi":"无",
+        "base_model_final":"roberta-base",
+        "is_multimodal":false,
         "dataset_deps":[
             "bookcorpus",
             "wikipedia"
-        ]
-    },
-    {
-        "id":"openai-community\/gpt2",
-        "downloads":10074467,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"hexgrad\/Kokoro-82M",
-        "downloads":9997405,
-        "library_name":"未知框架",
-        "base_model":[
-            "yl4579\/StyleTTS2-LJSpeech"
         ],
-        "dataset_deps":[
-
-        ]
+        "status":"ok"
     },
     {
-        "id":"Comfy-Org\/Wan_2.2_ComfyUI_Repackaged",
-        "downloads":9739163,
-        "library_name":"diffusion-single-file",
-        "base_model":"无",
+        "model_id":"Qwen\/Qwen3-0.6B",
+        "downloads":13820887,
+        "library_name":"transformers",
+        "tags":"transformers,safetensors,qwen3,text-generation,conversational,arxiv:2505.09388,base_model:Qwen\/Qwen3-0.6B-Base,base_model:finetune:Qwen\/Qwen3-0.6B-Base,license:apache-2.0,text-generation-inference,endpoints_compatible,deploy:azure,region:us",
+        "base_from_card":"['Qwen\/Qwen3-0.6B-Base']",
+        "base_from_config":"无",
+        "base_from_id":"qwen\/Qwen-qwen30.6b",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"['Qwen\/Qwen3-0.6B-Base']",
+        "is_multimodal":false,
         "dataset_deps":[
 
-        ]
-    },
-    {
-        "id":"Kijai\/WanVideo_comfy",
-        "downloads":9186360,
-        "library_name":"diffusion-single-file",
-        "base_model":[
-            "Wan-AI\/Wan2.1-VACE-14B",
-            "Wan-AI\/Wan2.1-VACE-1.3B"
         ],
-        "dataset_deps":[
-
-        ]
+        "status":"ok"
     },
     {
-        "id":"autogluon\/chronos-bolt-small",
-        "downloads":8933745,
-        "library_name":"未知框架",
-        "base_model":"无",
+        "model_id":"pyannote\/wespeaker-voxceleb-resnet34-LM",
+        "downloads":13538198,
+        "library_name":"pyannote-audio",
+        "tags":"pyannote-audio,pytorch,pyannote,pyannote-audio-model,wespeaker,audio,voice,speech,speaker,speaker-recognition,speaker-verification,speaker-identification,speaker-embedding,dataset:voxceleb,license:cc-by-4.0,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"无",
+        "base_from_multi":"无",
+        "base_model_final":"基座模型",
+        "is_multimodal":false,
         "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"distilbert\/distilbert-base-uncased",
-        "downloads":8162877,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "bookcorpus",
-            "wikipedia"
-        ]
-    },
-    {
-        "id":"coqui\/XTTS-v2",
-        "downloads":8071783,
-        "library_name":"coqui",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-VL-8B-Instruct",
-        "downloads":7963826,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"facebook\/contriever",
-        "downloads":7496435,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"OpenMuQ\/MuQ-large-msd-iter",
-        "downloads":7350446,
-        "library_name":"未知框架",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"dima806\/fairface_age_image_detection",
-        "downloads":7290417,
-        "library_name":"transformers",
-        "base_model":[
-            "google\/vit-base-patch16-224-in21k"
+            "voxceleb"
         ],
-        "dataset_deps":[
-            "nateraw\/fairface"
-        ]
+        "status":"ok"
     },
     {
-        "id":"Qwen\/Qwen2.5-1.5B-Instruct",
-        "downloads":7223269,
-        "library_name":"transformers",
-        "base_model":"Qwen\/Qwen2.5-1.5B",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen2.5-0.5B-Instruct",
-        "downloads":7031691,
-        "library_name":"transformers",
-        "base_model":"Qwen\/Qwen2.5-0.5B",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"meta-llama\/Llama-3.1-8B-Instruct",
-        "downloads":7006483,
-        "library_name":"transformers",
-        "base_model":"meta-llama\/Meta-Llama-3.1-8B",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"openai\/clip-vit-large-patch14",
-        "downloads":6863104,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"openai\/gpt-oss-20b",
-        "downloads":6810310,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"FacebookAI\/xlm-roberta-large",
-        "downloads":6656164,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen2.5-3B-Instruct",
-        "downloads":6549539,
-        "library_name":"transformers",
-        "base_model":"Qwen\/Qwen2.5-3B",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"BAAI\/bge-small-en-v1.5",
-        "downloads":6236657,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"sentence-transformers\/paraphrase-multilingual-mpnet-base-v2",
-        "downloads":6189318,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"trl-internal-testing\/tiny-Qwen2ForCausalLM-2.5",
-        "downloads":6185159,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"timm\/convnextv2_nano.fcmae_ft_in22k_in1k",
-        "downloads":6157057,
-        "library_name":"timm",
-        "base_model":"无",
-        "dataset_deps":[
-            "imagenet-1k",
-            "imagenet-1k"
-        ]
-    },
-    {
-        "id":"openai\/whisper-large-v3",
-        "downloads":6125173,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-1.7B",
-        "downloads":6069688,
-        "library_name":"transformers",
-        "base_model":[
-            "Qwen\/Qwen3-1.7B-Base"
-        ],
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"ProsusAI\/finbert",
-        "downloads":6046092,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-8B",
-        "downloads":5844810,
-        "library_name":"transformers",
-        "base_model":[
-            "Qwen\/Qwen3-8B-Base"
-        ],
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"BAAI\/bge-large-en-v1.5",
-        "downloads":5794962,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"facebook\/opt-125m",
-        "downloads":5741414,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"nomic-ai\/nomic-embed-text-v1.5",
-        "downloads":5656207,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"usyd-community\/vitpose-plus-base",
-        "downloads":5622909,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"autogluon\/chronos-2",
-        "downloads":5352999,
+        "model_id":"amazon\/chronos-2",
+        "downloads":13261329,
         "library_name":"chronos-forecasting",
-        "base_model":"无",
+        "tags":"chronos-forecasting,safetensors,t5,time series,forecasting,foundation models,pretrained models,time-series-forecasting,dataset:autogluon\/chronos_datasets,dataset:Salesforce\/GiftEvalPretrain,arxiv:2403.07815,arxiv:2510.15821,license:apache-2.0,region:us",
+        "base_from_card":"无",
+        "base_from_config":"无",
+        "base_from_id":"无",
+        "base_from_type":"t5-base",
+        "base_from_multi":"无",
+        "base_model_final":"t5-base",
+        "is_multimodal":false,
         "dataset_deps":[
             "autogluon\/chronos_datasets",
             "Salesforce\/GiftEvalPretrain"
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-4B",
-        "downloads":5337795,
-        "library_name":"transformers",
-        "base_model":[
-            "Qwen\/Qwen3-4B-Base"
         ],
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"autogluon\/chronos-bolt-base",
-        "downloads":5254483,
-        "library_name":"未知框架",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"argmaxinc\/whisperkit-coreml",
-        "downloads":5253664,
-        "library_name":"whisperkit",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"BAAI\/bge-base-en-v1.5",
-        "downloads":5175671,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Comfy-Org\/Wan_2.1_ComfyUI_repackaged",
-        "downloads":5144290,
-        "library_name":"diffusion-single-file",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"jinaai\/jina-embeddings-v3",
-        "downloads":5138228,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"openai\/clip-vit-large-patch14-336",
-        "downloads":5125366,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"intfloat\/multilingual-e5-large",
-        "downloads":5009916,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"sentence-transformers\/multi-qa-mpnet-base-dot-v1",
-        "downloads":4934153,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "flax-sentence-embeddings\/stackexchange_xml",
-            "ms_marco",
-            "gooaq",
-            "yahoo_answers_topics",
-            "search_qa",
-            "eli5",
-            "natural_questions",
-            "trivia_qa",
-            "embedding-data\/QQP",
-            "embedding-data\/PAQ_pairs",
-            "embedding-data\/Amazon-QA",
-            "embedding-data\/WikiAnswers"
-        ]
-    },
-    {
-        "id":"cardiffnlp\/twitter-roberta-base-sentiment-latest",
-        "downloads":4905133,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "tweet_eval"
-        ]
-    },
-    {
-        "id":"amazon\/chronos-bolt-base",
-        "downloads":4780303,
-        "library_name":"chronos-forecasting",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"facebook\/esmfold_v1",
-        "downloads":4662426,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"google-bert\/bert-base-multilingual-uncased",
-        "downloads":4645484,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "wikipedia"
-        ]
-    },
-    {
-        "id":"dphn\/dolphin-2.9.1-yi-1.5-34b",
-        "downloads":4644381,
-        "library_name":"transformers",
-        "base_model":"01-ai\/Yi-1.5-34B",
-        "dataset_deps":[
-            "cognitivecomputations\/Dolphin-2.9",
-            "teknium\/OpenHermes-2.5",
-            "m-a-p\/CodeFeedback-Filtered-Instruction",
-            "cognitivecomputations\/dolphin-coder",
-            "cognitivecomputations\/samantha-data",
-            "microsoft\/orca-math-word-problems-200k",
-            "Locutusque\/function-calling-chatml",
-            "internlm\/Agent-FLAN"
-        ]
-    },
-    {
-        "id":"lpiccinelli\/unidepth-v2-vitl14",
-        "downloads":4587353,
-        "library_name":"UniDepth",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"sentence-transformers\/all-MiniLM-L12-v2",
-        "downloads":4418966,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "s2orc",
-            "flax-sentence-embeddings\/stackexchange_xml",
-            "ms_marco",
-            "gooaq",
-            "yahoo_answers_topics",
-            "code_search_net",
-            "search_qa",
-            "eli5",
-            "snli",
-            "multi_nli",
-            "wikihow",
-            "natural_questions",
-            "trivia_qa",
-            "embedding-data\/sentence-compression",
-            "embedding-data\/flickr30k-captions",
-            "embedding-data\/altlex",
-            "embedding-data\/simple-wiki",
-            "embedding-data\/QQP",
-            "embedding-data\/SPECTER",
-            "embedding-data\/PAQ_pairs",
-            "embedding-data\/WikiAnswers"
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-Embedding-0.6B",
-        "downloads":4378898,
-        "library_name":"sentence-transformers",
-        "base_model":[
-            "Qwen\/Qwen3-0.6B-Base"
-        ],
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"laion\/CLIP-ViT-B-32-DataComp.XL-s13B-b90K",
-        "downloads":4371839,
-        "library_name":"open_clip",
-        "base_model":"无",
-        "dataset_deps":[
-            "mlfoundations\/datacomp_pools"
-        ]
-    },
-    {
-        "id":"jonatasgrosman\/wav2vec2-large-xlsr-53-russian",
-        "downloads":4348147,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "common_voice",
-            "mozilla-foundation\/common_voice_6_0"
-        ]
-    },
-    {
-        "id":"google\/vit-base-patch16-224",
-        "downloads":4242014,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "imagenet-1k",
-            "imagenet-21k"
-        ]
-    },
-    {
-        "id":"google-bert\/bert-base-multilingual-cased",
-        "downloads":4184577,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "wikipedia"
-        ]
-    },
-    {
-        "id":"openai\/gpt-oss-120b",
-        "downloads":4118252,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"sentence-transformers\/paraphrase-MiniLM-L6-v2",
-        "downloads":4116342,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"openai\/whisper-large-v3-turbo",
-        "downloads":4110753,
-        "library_name":"transformers",
-        "base_model":[
-            "openai\/whisper-large-v3"
-        ],
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"mlx-community\/Kimi-K2.5",
-        "downloads":4014226,
-        "library_name":"mlx",
-        "base_model":"moonshotai\/Kimi-K2.5",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"BAAI\/bge-reranker-v2-m3",
-        "downloads":3951419,
-        "library_name":"sentence-transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen2.5-32B-Instruct",
-        "downloads":3935435,
-        "library_name":"transformers",
-        "base_model":"Qwen\/Qwen2.5-32B",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen2.5-VL-7B-Instruct",
-        "downloads":3932453,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"facebook\/bart-large-mnli",
-        "downloads":3913654,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "multi_nli"
-        ]
-    },
-    {
-        "id":"vikhyatk\/moondream2",
-        "downloads":3886420,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"distilbert\/distilbert-base-uncased-finetuned-sst-2-english",
-        "downloads":3798490,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "sst2",
-            "glue"
-        ]
-    },
-    {
-        "id":"IDEA-Research\/grounding-dino-base",
-        "downloads":3780463,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-4B-Instruct-2507",
-        "downloads":3739509,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"meta-llama\/Llama-3.2-1B-Instruct",
-        "downloads":3703728,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"iitolstykh\/mivolo_v2",
-        "downloads":3660748,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"facebook\/wav2vec2-base-960h",
-        "downloads":3587853,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-            "librispeech_asr"
-        ]
-    },
-    {
-        "id":"deepseek-ai\/DeepSeek-OCR",
-        "downloads":3549697,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen3-32B",
-        "downloads":3511708,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"facebook\/w2v-bert-2.0",
-        "downloads":3492419,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"apple\/DFN5B-CLIP-ViT-H-14-378",
-        "downloads":3482050,
-        "library_name":"open_clip",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"Qwen\/Qwen2-1.5B-Instruct",
-        "downloads":3475399,
-        "library_name":"transformers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"drbaph\/Qwen-Image-Edit-2511-FP8",
-        "downloads":3467691,
-        "library_name":"diffusers",
-        "base_model":"无",
-        "dataset_deps":[
-
-        ]
-    },
-    {
-        "id":"speechbrain\/spkrec-resnet-voxceleb",
-        "downloads":3465781,
-        "library_name":"speechbrain",
-        "base_model":"无",
-        "dataset_deps":[
-            "voxceleb"
-        ]
+        "status":"ok"
     }
 ]

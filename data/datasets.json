@@ -1,502 +1,102 @@
 [
     {
-        "dataset_id":"huggingface\/documentation-images",
-        "author":"huggingface",
-        "downloads":1996362
+        "dataset_id":"m-a-p\/FineFineWeb",
+        "author":"m-a-p",
+        "downloads":2746970
     },
     {
         "dataset_id":"KakologArchives\/KakologArchives",
         "author":"KakologArchives",
-        "downloads":1927053
+        "downloads":2530990
+    },
+    {
+        "dataset_id":"huggingface\/documentation-images",
+        "author":"huggingface",
+        "downloads":2032605
     },
     {
         "dataset_id":"hf-doc-build\/doc-build",
         "author":"hf-doc-build",
-        "downloads":1293420
+        "downloads":1790768
     },
     {
-        "dataset_id":"NTU-NLP-sg\/xCodeEval",
-        "author":"NTU-NLP-sg",
-        "downloads":1286068
-    },
-    {
-        "dataset_id":"m-a-p\/FineFineWeb",
-        "author":"m-a-p",
-        "downloads":1160491
-    },
-    {
-        "dataset_id":"opendatalab\/AICC",
-        "author":"opendatalab",
-        "downloads":1077882
+        "dataset_id":"ropedia-ai\/xperience-10m",
+        "author":"ropedia-ai",
+        "downloads":1661612
     },
     {
         "dataset_id":"banned-historical-archives\/banned-historical-archives",
         "author":"banned-historical-archives",
-        "downloads":1066492
+        "downloads":1515570
+    },
+    {
+        "dataset_id":"NTU-NLP-sg\/xCodeEval",
+        "author":"NTU-NLP-sg",
+        "downloads":1270039
     },
     {
         "dataset_id":"Salesforce\/wikitext",
         "author":"Salesforce",
-        "downloads":909641
-    },
-    {
-        "dataset_id":"CodedotAI\/code_clippy_github",
-        "author":"CodedotAI",
-        "downloads":698525
-    },
-    {
-        "dataset_id":"Rebabit0v0\/parity-experiments",
-        "author":"Rebabit0v0",
-        "downloads":650728
+        "downloads":1021438
     },
     {
         "dataset_id":"tasl-lab\/uniocc",
         "author":"tasl-lab",
-        "downloads":612578
-    },
-    {
-        "dataset_id":"Naveen0501\/dlgenai-nppe-dataset",
-        "author":"Naveen0501",
-        "downloads":610142
-    },
-    {
-        "dataset_id":"lavita\/medical-qa-shared-task-v1-toy",
-        "author":"lavita",
-        "downloads":609945
-    },
-    {
-        "dataset_id":"Jsinowitz\/snodas-snowmelt-cache",
-        "author":"Jsinowitz",
-        "downloads":587780
-    },
-    {
-        "dataset_id":"google-research-datasets\/mbpp",
-        "author":"google-research-datasets",
-        "downloads":583520
+        "downloads":849244
     },
     {
         "dataset_id":"princeton-nlp\/SWE-bench_Verified",
         "author":"princeton-nlp",
-        "downloads":575510
-    },
-    {
-        "dataset_id":"open-llm-leaderboard-old\/requests",
-        "author":"open-llm-leaderboard-old",
-        "downloads":554470
-    },
-    {
-        "dataset_id":"allenai\/objaverse",
-        "author":"allenai",
-        "downloads":521244
-    },
-    {
-        "dataset_id":"deepmind\/code_contests",
-        "author":"deepmind",
-        "downloads":516507
-    },
-    {
-        "dataset_id":"nvidia\/PhysicalAI-Robotics-GR00T-X-Embodiment-Sim",
-        "author":"nvidia",
-        "downloads":514705
-    },
-    {
-        "dataset_id":"tomg-group-umd\/huginn-dataset",
-        "author":"tomg-group-umd",
-        "downloads":501926
-    },
-    {
-        "dataset_id":"IPEC-COMMUNITY\/droid_lerobot",
-        "author":"IPEC-COMMUNITY",
-        "downloads":498954
-    },
-    {
-        "dataset_id":"zapsword\/parity-experiments",
-        "author":"zapsword",
-        "downloads":495396
+        "downloads":703560
     },
     {
         "dataset_id":"openai\/gsm8k",
         "author":"openai",
-        "downloads":491509
-    },
-    {
-        "dataset_id":"IPEC-COMMUNITY\/language_table_lerobot",
-        "author":"IPEC-COMMUNITY",
-        "downloads":490248
-    },
-    {
-        "dataset_id":"allenai\/c4",
-        "author":"allenai",
-        "downloads":487827
-    },
-    {
-        "dataset_id":"AquaV\/genshin-voices-separated",
-        "author":"AquaV",
-        "downloads":456011
-    },
-    {
-        "dataset_id":"Lichess\/standard-chess-games",
-        "author":"Lichess",
-        "downloads":440135
-    },
-    {
-        "dataset_id":"transferable-samplers\/many-peptides-md",
-        "author":"transferable-samplers",
-        "downloads":429391
+        "downloads":696467
     },
     {
         "dataset_id":"epfml\/FineWeb-HQ",
         "author":"epfml",
-        "downloads":424924
+        "downloads":690453
     },
     {
-        "dataset_id":"Salesforce\/GiftEvalPretrain",
-        "author":"Salesforce",
-        "downloads":420935
-    },
-    {
-        "dataset_id":"Hangzhi98\/parity-experiments",
-        "author":"Hangzhi98",
-        "downloads":396047
-    },
-    {
-        "dataset_id":"Ziruo03\/parity-experiments",
-        "author":"Ziruo03",
-        "downloads":388288
-    },
-    {
-        "dataset_id":"DarrenDong\/parity-experiments",
-        "author":"DarrenDong",
-        "downloads":387357
-    },
-    {
-        "dataset_id":"nvidia\/PhysicalAI-Autonomous-Vehicles",
-        "author":"nvidia",
-        "downloads":380318
-    },
-    {
-        "dataset_id":"cais\/mmlu",
-        "author":"cais",
-        "downloads":341322
-    },
-    {
-        "dataset_id":"Kthera\/pesoz",
-        "author":"Kthera",
-        "downloads":334184
-    },
-    {
-        "dataset_id":"clides\/M-BEIR-Fashion200K-Images",
-        "author":"clides",
-        "downloads":332014
-    },
-    {
-        "dataset_id":"allenai\/ai2_arc",
-        "author":"allenai",
-        "downloads":316421
-    },
-    {
-        "dataset_id":"xlangai\/ubuntu_osworld_file_cache",
-        "author":"xlangai",
-        "downloads":307103
-    },
-    {
-        "dataset_id":"jyseo\/Synthetic-Ref-to-Urban-Video-Pairs",
-        "author":"jyseo",
-        "downloads":297221
-    },
-    {
-        "dataset_id":"bigcode\/commitpackft",
-        "author":"bigcode",
-        "downloads":296763
-    },
-    {
-        "dataset_id":"nyu-mll\/glue",
-        "author":"nyu-mll",
-        "downloads":281097
-    },
-    {
-        "dataset_id":"huggingface-course\/documentation-images",
-        "author":"huggingface-course",
-        "downloads":278642
-    },
-    {
-        "dataset_id":"Stable-X\/ProObjaverse-300K",
-        "author":"Stable-X",
-        "downloads":278525
-    },
-    {
-        "dataset_id":"ryanqian1994\/bridge_v2_lerobot",
-        "author":"ryanqian1994",
-        "downloads":273906
-    },
-    {
-        "dataset_id":"IPEC-COMMUNITY\/kuka_lerobot",
-        "author":"IPEC-COMMUNITY",
-        "downloads":272687
-    },
-    {
-        "dataset_id":"enronarchive\/mail",
-        "author":"enronarchive",
-        "downloads":255437
-    },
-    {
-        "dataset_id":"dsinghvi\/eval_awareness",
-        "author":"dsinghvi",
-        "downloads":249734
-    },
-    {
-        "dataset_id":"Saberlve\/bridgev2",
-        "author":"Saberlve",
-        "downloads":245406
-    },
-    {
-        "dataset_id":"sunghong\/CADS-dataset",
-        "author":"sunghong",
-        "downloads":245315
-    },
-    {
-        "dataset_id":"ryanqian1994\/bridge_orig_lerobot",
-        "author":"ryanqian1994",
-        "downloads":236910
-    },
-    {
-        "dataset_id":"Helsinki-NLP\/fineweb-edu-translated",
-        "author":"Helsinki-NLP",
-        "downloads":236651
+        "dataset_id":"ScaleAI\/SWE-bench_Pro",
+        "author":"ScaleAI",
+        "downloads":645695
     },
     {
         "dataset_id":"nguha\/legalbench",
         "author":"nguha",
-        "downloads":234253
+        "downloads":627283
     },
     {
-        "dataset_id":"anfera236\/HHDC",
-        "author":"anfera236",
-        "downloads":232597
-    },
-    {
-        "dataset_id":"Keymotek\/simData-Dataset",
-        "author":"Keymotek",
-        "downloads":232104
-    },
-    {
-        "dataset_id":"Rowan\/hellaswag",
-        "author":"Rowan",
-        "downloads":231219
-    },
-    {
-        "dataset_id":"Cnam-LMSSC\/vibravox",
-        "author":"Cnam-LMSSC",
-        "downloads":230020
-    },
-    {
-        "dataset_id":"HuggingFaceFW\/fineweb-edu",
-        "author":"HuggingFaceFW",
-        "downloads":227597
-    },
-    {
-        "dataset_id":"mteb\/results",
-        "author":"mteb",
-        "downloads":227329
-    },
-    {
-        "dataset_id":"allenai\/dolma3_dolmino_mix-100B-1125",
+        "dataset_id":"allenai\/c4",
         "author":"allenai",
-        "downloads":225932
+        "downloads":625336
     },
     {
-        "dataset_id":"world-igr-plum\/regions",
-        "author":"world-igr-plum",
-        "downloads":223660
+        "dataset_id":"Kthera\/pesoz",
+        "author":"Kthera",
+        "downloads":576963
     },
     {
-        "dataset_id":"charge-benchmark\/Charge-060_0130",
-        "author":"charge-benchmark",
-        "downloads":222114
-    },
-    {
-        "dataset_id":"ryanmarten\/OpenThoughts-1k-sample",
-        "author":"ryanmarten",
-        "downloads":221899
-    },
-    {
-        "dataset_id":"OpenSQZ\/AutoMathText-V2",
-        "author":"OpenSQZ",
-        "downloads":220312
-    },
-    {
-        "dataset_id":"allenai\/winogrande",
+        "dataset_id":"allenai\/dolma3_mix-6T-1025-7B",
         "author":"allenai",
-        "downloads":219669
+        "downloads":571055
     },
     {
-        "dataset_id":"allenai\/dolmino-mix-1124",
-        "author":"allenai",
-        "downloads":217813
-    },
-    {
-        "dataset_id":"tarsem404\/CADS-dataset",
-        "author":"tarsem404",
-        "downloads":217010
-    },
-    {
-        "dataset_id":"lumees\/github-code-2025-language-split",
-        "author":"lumees",
-        "downloads":216562
-    },
-    {
-        "dataset_id":"Reza2kn\/commonvoice-24-fa",
-        "author":"Reza2kn",
-        "downloads":214392
-    },
-    {
-        "dataset_id":"KeyNG101\/VoxEval",
-        "author":"KeyNG101",
-        "downloads":214020
-    },
-    {
-        "dataset_id":"drssth\/ModelNet-simscan",
-        "author":"drssth",
-        "downloads":212540
-    },
-    {
-        "dataset_id":"huggingface\/badges",
-        "author":"huggingface",
-        "downloads":212225
-    },
-    {
-        "dataset_id":"agents-course\/course-images",
-        "author":"agents-course",
-        "downloads":209448
-    },
-    {
-        "dataset_id":"k-l-lambda\/cc-omr",
-        "author":"k-l-lambda",
-        "downloads":208558
-    },
-    {
-        "dataset_id":"IPEC-COMMUNITY\/bridge_orig_lerobot",
-        "author":"IPEC-COMMUNITY",
-        "downloads":208207
-    },
-    {
-        "dataset_id":"zhu0110\/SA-Med3D-140K",
-        "author":"zhu0110",
-        "downloads":203038
+        "dataset_id":"lavita\/medical-qa-shared-task-v1-toy",
+        "author":"lavita",
+        "downloads":555887
     },
     {
         "dataset_id":"allenai\/MADLAD-400",
         "author":"allenai",
-        "downloads":202871
+        "downloads":541484
     },
     {
-        "dataset_id":"wendyl21\/parity-experiments",
-        "author":"wendyl21",
-        "downloads":199478
-    },
-    {
-        "dataset_id":"Johnbosco20\/community_dataset_v3",
-        "author":"Johnbosco20",
-        "downloads":194167
-    },
-    {
-        "dataset_id":"rtrm\/debug",
-        "author":"rtrm",
-        "downloads":192968
-    },
-    {
-        "dataset_id":"openai\/openai_humaneval",
-        "author":"openai",
-        "downloads":190250
-    },
-    {
-        "dataset_id":"World-Snapshot\/wsg-Archive",
-        "author":"World-Snapshot",
-        "downloads":189885
-    },
-    {
-        "dataset_id":"sazirarrwth99\/droid_metadata_only",
-        "author":"sazirarrwth99",
-        "downloads":185740
-    },
-    {
-        "dataset_id":"NurshatMenglik\/Paired_Compressible_Boussinesq_Flow_Simulation_with_Random_Temperature_BCs",
-        "author":"NurshatMenglik",
-        "downloads":185692
-    },
-    {
-        "dataset_id":"hhyyjj\/egoexo",
-        "author":"hhyyjj",
-        "downloads":184205
-    },
-    {
-        "dataset_id":"tokyotech-llm\/swallow-code-v2",
-        "author":"tokyotech-llm",
-        "downloads":173833
-    },
-    {
-        "dataset_id":"loupk\/CADS-dataset",
-        "author":"loupk",
-        "downloads":171216
-    },
-    {
-        "dataset_id":"boltzgen\/inference-data",
-        "author":"boltzgen",
-        "downloads":170929
-    },
-    {
-        "dataset_id":"sarulab-speech\/PromptTSE",
-        "author":"sarulab-speech",
-        "downloads":170880
-    },
-    {
-        "dataset_id":"wuzhao73\/3D-ADAM",
-        "author":"wuzhao73",
-        "downloads":169372
-    },
-    {
-        "dataset_id":"Lijiaxin0111\/M3_VOS",
-        "author":"Lijiaxin0111",
-        "downloads":167194
-    },
-    {
-        "dataset_id":"Yanis236\/fsc-180k",
-        "author":"Yanis236",
-        "downloads":165942
-    },
-    {
-        "dataset_id":"lazlo-bleker\/bridge-net",
-        "author":"lazlo-bleker",
-        "downloads":165551
-    },
-    {
-        "dataset_id":"LinhHuong11\/movie-v2",
-        "author":"LinhHuong11",
-        "downloads":165190
-    },
-    {
-        "dataset_id":"HuggingFaceFW\/fineweb",
-        "author":"HuggingFaceFW",
-        "downloads":165189
-    },
-    {
-        "dataset_id":"aps\/super_glue",
-        "author":"aps",
-        "downloads":163552
-    },
-    {
-        "dataset_id":"neilrigaud\/hagrid-subset",
-        "author":"neilrigaud",
-        "downloads":160579
-    },
-    {
-        "dataset_id":"mvp-lab\/LLaVA-OneVision-1.5-Mid-Training-85M",
-        "author":"mvp-lab",
-        "downloads":160290
-    },
-    {
-        "dataset_id":"abraranwar\/agibotworld_alpha_headcam_rfm",
-        "author":"abraranwar",
-        "downloads":157414
+        "dataset_id":"mteb\/sts22-crosslingual-sts",
+        "author":"mteb",
+        "downloads":528761
     }
 ]

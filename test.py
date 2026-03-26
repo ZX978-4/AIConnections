@@ -1,7 +1,7 @@
 from huggingface_hub import HfApi
 import json
 
-def get_detailed_models(limit=10000):
+def get_detailed_models(limit=100):
     api = HfApi()
     models = api.list_models(
         sort="downloads",
@@ -25,7 +25,8 @@ def get_detailed_models(limit=10000):
                 "sha": m.sha,
             },
             "供应链血缘": {
-                "base_model": getattr(m.card_data, "base_model", None) if m.card_data else None,
+                # "base_model": getattr(m.card_data, "base_model", None) if m.card_data else None,
+                "base_model": m.card_data.get("base_model", "无") if m.card_data else "无",
                 "datasets": getattr(m.card_data, "datasets", []) if m.card_data else [],
                 "is_merged": "merge" in (m.tags or []),
                 "is_quantized": any(t in (m.tags or []) for t in ["gguf", "awq", "gptq"]),
@@ -53,5 +54,6 @@ def get_detailed_models(limit=10000):
 
 
 if __name__ == "__main__":
-    data = get_detailed_models(10000)
-    print(json.dumps(data, indent=4, ensure_ascii=False))
+    data = get_detailed_models(100)
+    with open("models_output.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
