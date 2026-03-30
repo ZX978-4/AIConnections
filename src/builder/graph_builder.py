@@ -1,31 +1,27 @@
 import pandas as pd
 
-
 class SupplyChainBuilder:
-    def __init__(self, raw_data):
-        self.raw_data = raw_data
+    def __init__(self, model_data, dataset_data):
+        self.model_data = model_data
+        self.dataset_data = dataset_data
 
     def process(self):
-        nodes = []
-        edges = []
-
-        for mid, info in self.raw_data.items():
-            # 提取节点信息
-            nodes.append({
-                "id": mid,
-                "downloads": info.get('downloads', 0),
-                "author": info.get('author', 'unknown'),
-                "license": info.get('license', 'unknown')
-            })
-
-            # 提取关系信息
-            for edge in info.get('edges', []):
-                edges.append({
-                    "source": mid,
-                    "target": edge["to"],
-                    "relation": edge["relation"]
+        nodes, edges = [], []
+        # 处理模型
+        for mid, info in self.model_data.items():
+            if "author" in info:
+                nodes.append({
+                    "id": mid, "type": "model", "downloads": info['downloads'],
+                    "author": info['author'], "license": info['license']
                 })
-
-        node_df = pd.DataFrame(nodes).drop_duplicates(subset=['id'])
-        edge_df = pd.DataFrame(edges).drop_duplicates()
-        return node_df, edge_df
+            for e in info.get('edges', []):
+                edges.append({"source": mid, "target": e["to"], "relation": e["relation"]})
+            for ds_id in info.get('datasets', []):
+                edges.append({"source": ds_id, "target": mid, "relation": "trained_on"})
+        # 处理数据集
+        for did, dinfo in self.dataset_data.items():
+            nodes.append({
+                "id": did, "type": "dataset", "downloads": dinfo.get('downloads', 0),
+                "author": dinfo.get('author', 'unknown'), "license": dinfo.get('license', 'unknown')
+            })
+        return pd.DataFrame(nodes).drop_duplicates('id'), pd.DataFrame(edges).drop_duplicates()
