@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # 加载环境变量
 load_dotenv()
-HF_TOKEN = os.getenv("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")
+# HF_TOKEN = os.getenv("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")
 
 # ===================== 爬取配置 =====================
 TOP_MODELS_LIMIT = 100  # 先改100个测试，跑通再改1000
