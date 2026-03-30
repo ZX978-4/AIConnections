@@ -1,34 +1,41 @@
-# src/crawler/hf_api.py 【修复版】
-from huggingface_hub import list_models, login
-from src.config.settings import HF_TOKEN, TOP_MODELS_LIMIT, BATCH_SIZE
+# src/crawler/hf_api.py 【最终无错版】
+from huggingface_hub import list_models
+from src.config.settings import TOP_MODELS_LIMIT, BATCH_SIZE
 from src.utils.common import log, save_csv
 import pandas as pd
-
-# 登录Hugging Face
-login(token=HF_TOKEN, add_to_git_credential=False)
-
+import time
 
 def get_top_models(limit=TOP_MODELS_LIMIT):
-    log(f"开始获取 Top {limit} 热门模型")
-
+    log(f"开始爬取 Hugging Face 真实热门模型（无登录·防卡死版）...")
     all_models = []
-    # 分页爬取（直接传参数过滤：有模型卡 + 按下载量排序）
-    for i in range(10):
-        batch = list_models(
-            has_model_card=True,  # 直接过滤：有模型卡
-            sort="downloads",  # 按下载量排序
-            direction=-1,  # 降序
-            limit=BATCH_SIZE,
-            offset=i * BATCH_SIZE
-        )
-        all_models.extend(batch)
-        if len(all_models) >= limit:
-            break
+
+    for i in range(20):
+        try:
+            log(f"正在抓取第 {i+1} 页数据...")
+
+            batch = list_models(
+                has_model_card=True,
+                sort="downloads",
+                direction=-1,
+                limit=50,
+                offset=i * 50,
+                timeout=20
+            )
+
+            all_models.extend(batch)
+            log(f"第 {i+1} 页抓取成功，当前总数：{len(all_models)}")
+            time.sleep(6)
+
+            if len(all_models) >= limit:
+                break
+
+        except Exception as e:
+            log(f"等待 15 秒重试...")
+            time.sleep(15)
+            continue
 
     all_models = all_models[:limit]
-    log(f"共获取 {len(all_models)} 个模型")
 
-    # 构建数据表
     df = pd.DataFrame({
         "model_id": [m.modelId for m in all_models],
         "author": [m.author for m in all_models],
@@ -39,9 +46,5 @@ def get_top_models(limit=TOP_MODELS_LIMIT):
     })
 
     save_csv(df, "hf_top1000_model_base.csv", data_type="raw")
+    log(f"✅ 真实模型抓取完成！共 {len(df)} 个！")
     return df
-
-
-# 测试：单独运行此文件，看能否成功爬取数据
-if __name__ == "__main__":
-    get_top_models()
