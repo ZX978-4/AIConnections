@@ -1,32 +1,33 @@
-# main.py
-from src.crawler.hf_api import get_top_models
-from src.parser.model_parser import batch_parse_models
-from src.builder.graph_builder import build_supply_chain_graph
-from src.analyzer.stats_analyzer import run_quantitative_analysis
-from src.visualizer.pyvis_builder import generate_interactive_graph
+import time
+from src.crawler.hf_api import HFGraphCrawler
+from src.builder.graph_builder import SupplyChainBuilder
+from src.config.settings import RAW_DATA_DIR, PROCESSED_DATA_DIR
+from src.utils.common import logger, save_json
+
+
+def main():
+    crawler = HFGraphCrawler()
+    # 建议先用 limit=50 测试，确认 edges.csv 里的关系和 license 没问题
+    seeds = crawler.get_top_models(limit=100)
+
+    try:
+        for mid in seeds:
+            crawler.fetch_model_and_dependencies(mid)
+    except KeyboardInterrupt:
+        logger.info("Interrupted. Saving progress...")
+
+    # 保存原始 JSON
+    save_json(crawler.model_data_store, RAW_DATA_DIR / "raw_supply_chain.json")
+
+    # 构建并保存 CSV
+    builder = SupplyChainBuilder(crawler.model_data_store)
+    nodes, edges = builder.process()
+
+    nodes.to_csv(PROCESSED_DATA_DIR / "nodes.csv", index=False)
+    edges.to_csv(PROCESSED_DATA_DIR / "edges.csv", index=False)
+
+    logger.info(f"Done! Extracted {len(nodes)} models and {len(edges)} relationships.")
+
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("  AI模型供应链全流程启动 ")
-    print("=" * 50)
-
-    # 1. 爬取模型
-    model_df = get_top_models()
-
-    # 2. 解析依赖
-    full_df = batch_parse_models(model_df)
-
-    # 3. 构建图谱
-    G = build_supply_chain_graph(full_df)
-
-    # 4. 数据分析
-    run_quantitative_analysis(full_df)
-
-    # 5. 可视化
-    generate_interactive_graph(G)
-
-    print("=" * 50)
-    print("  全部完成！🎉")
-    print("  数据在 data/ 文件夹")
-    print("  输出在 output/ 文件夹")
-    print("=" * 50)
+    main()
