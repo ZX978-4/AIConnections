@@ -48,52 +48,64 @@ class HFGraphCrawler:
         except:
             self.dataset_data_store[dataset_id] = {"id": dataset_id, "type": "dataset", "error": "inaccessible"}
 
+    def _calculate_dynamic_limit(self, downloads):
+        """
+        根据模型的下载量定义爬取子节点的数量。
+        策略：越火的模型，越值得深挖其衍生的生态系统。
+        """
+        if downloads > 100000:
+            return 50  # 顶流模型（如 Llama-3），获取前 50 个微调版
+        elif downloads > 10000:
+            return 20  # 热门模型，获取前 20 个
+        elif downloads > 1000:
+            return 5  # 普通模型，获取前 5 个
+        else:
+            return 2  # 冷门或长尾模型，仅获取前 2 个
+
     def fetch_model_and_dependencies(self, model_id, depth=0):
-        # 即使被访问过，也打印一下跳过信息，让你知道程序在动
-        if model_id in self.visited_models:
-            return
-        if depth > 2:
+        if model_id in self.visited_models or depth > 4:
             return
 
         self.visited_models.add(model_id)
-        # --- 关键：每一层递归都打印，让你看到进度 ---
         indent = "  " * depth
         logger.info(f"{indent}--> Processing {model_id} (Depth: {depth})")
 
         try:
             info = self.api.model_info(model_id)
+            # 获取下载量用于动态策略
+            downloads = getattr(info, 'downloads', 0)
 
-            # 记录数据集
+            # --- 动态策略核心：计算当前模型的 limit ---
+            dynamic_limit = self._calculate_dynamic_limit(downloads)
+            logger.info(f"{indent}    Downloads: {downloads}, Limit set to: {dynamic_limit}")
+
+            # 记录数据集和基础信息（保持原逻辑）
             ds_ids = [t.replace("dataset:", "") for t in (info.tags or []) if t.startswith("dataset:")]
-            if ds_ids:
-                logger.info(f"{indent}    Found {len(ds_ids)} datasets: {', '.join(ds_ids[:3])}...")
-
             for ds_id in ds_ids:
                 self.fetch_dataset_info(ds_id)
 
-            # 存储模型基础信息
             self.model_data_store[model_id] = {
                 "id": model_id,
                 "type": "model",
-                "downloads": getattr(info, 'downloads', 0),
+                "downloads": downloads,
                 "author": getattr(info, 'author', 'unknown'),
                 "license": getattr(info.cardData, 'license', 'unknown') if info.cardData else 'unknown',
                 "datasets": ds_ids,
                 "edges": self.model_data_store.get(model_id, {}).get("edges", [])
             }
 
-            # 处理下游
-            rel_data = self.web_parser.get_model_relationships(model_id)
+            # --- 关键修改：将 dynamic_limit 传递给 web_parser ---
+            rel_data = self.web_parser.get_model_relationships(model_id, limit=dynamic_limit)
+
             if rel_data["downstream"]:
                 logger.info(f"{indent}    Found {len(rel_data['downstream'])} downstream models.")
 
             for child in rel_data["downstream"]:
-                # 这里会触发递归，进入下一层打印
                 self._add_edge(model_id, child['id'], child['type'])
                 self.fetch_model_and_dependencies(child['id'], depth + 1)
                 time.sleep(0.1)  # 礼貌延时
 
-            # 处理上游
+            # 处理上游逻辑（保持原逻辑）
             if info.cardData and 'base_model' in info.cardData:
                 bm = info.cardData['base_model']
                 bases = [bm] if isinstance(bm, str) else bm

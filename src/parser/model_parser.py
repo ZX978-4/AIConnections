@@ -8,10 +8,16 @@ class HFWebParser:
             "Accept": "application/json",
         }
 
-    def get_model_relationships(self, model_id: str):
+    def get_model_relationships(self, model_id: str, limit: int = 10):
         results = {"downstream": []}
         search_url = "https://huggingface.co/api/models"
-        params = {"filter": f"base_model:{model_id}", "sort": "downloads", "direction": -1, "limit": 50}
+        # 使用动态传入的 limit
+        params = {
+            "filter": f"base_model:{model_id}",
+            "sort": "downloads",
+            "direction": -1,
+            "limit": limit
+        }
         try:
             resp = requests.get(search_url, params=params, headers=self.headers, timeout=10)
             if resp.status_code == 200:
