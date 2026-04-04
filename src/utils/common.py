@@ -3,7 +3,7 @@ import logging
 import sys
 from pathlib import Path
 import json
-
+import ast
 
 def setup_logger(name="hf_supply_chain"):
     """配置并返回一个标准的日志记录器"""
@@ -40,3 +40,25 @@ def load_json(filepath: Path):
         return None
     with open(filepath, 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+def clean_license(license_data):
+    """规范化证书格式，确保输出为统一的字符串"""
+    if not license_data or license_data == "unknown":
+        return "unknown"
+
+    # 1. 处理被误作为字符串的列表，例如 "['mit', 'apache-2.0']"
+    if isinstance(license_data, str) and license_data.startswith("["):
+        try:
+            license_data = ast.literal_eval(license_data)
+        except Exception:
+            pass
+
+    # 2. 如果是列表格式，将其合并为逗号分隔的字符串
+    if isinstance(license_data, list):
+        # 过滤掉空值并转小写
+        parts = [str(x).strip().lower() for x in license_data if x]
+        return ", ".join(parts) if parts else "unknown"
+
+    # 3. 如果是普通字符串，直接处理
+    return str(license_data).strip().lower()

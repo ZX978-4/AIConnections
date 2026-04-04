@@ -1,7 +1,7 @@
 from huggingface_hub import HfApi
 import time
 from src.config.settings import HF_TOKEN, TOP_K_MODELS
-from src.utils.common import logger
+from src.utils.common import logger, clean_license
 from src.parser.model_parser import HFWebParser
 
 
@@ -38,12 +38,15 @@ class HFGraphCrawler:
         self.visited_datasets.add(dataset_id)
         try:
             ds_info = self.api.dataset_info(dataset_id)
+            # 应用证书清洗
+            raw_license = getattr(ds_info.cardData, 'license', 'unknown') if ds_info.cardData else 'unknown'
+
             self.dataset_data_store[dataset_id] = {
                 "id": dataset_id,
                 "type": "dataset",
                 "downloads": getattr(ds_info, 'downloads', 0),
                 "author": getattr(ds_info, 'author', 'unknown'),
-                "license": getattr(ds_info.cardData, 'license', 'unknown') if ds_info.cardData else 'unknown'
+                "license": clean_license(raw_license)  # 使用清洗函数
             }
         except:
             self.dataset_data_store[dataset_id] = {"id": dataset_id, "type": "dataset", "error": "inaccessible"}
@@ -83,13 +86,14 @@ class HFGraphCrawler:
             ds_ids = [t.replace("dataset:", "") for t in (info.tags or []) if t.startswith("dataset:")]
             for ds_id in ds_ids:
                 self.fetch_dataset_info(ds_id)
-
+            raw_license = getattr(info.cardData, 'license', 'unknown') if info.cardData else 'unknown'
             self.model_data_store[model_id] = {
                 "id": model_id,
                 "type": "model",
+                "task": getattr(info, 'pipeline_tag', 'unknown'),
                 "downloads": downloads,
                 "author": getattr(info, 'author', 'unknown'),
-                "license": getattr(info.cardData, 'license', 'unknown') if info.cardData else 'unknown',
+                "license": clean_license(raw_license),
                 "datasets": ds_ids,
                 "edges": self.model_data_store.get(model_id, {}).get("edges", [])
             }
