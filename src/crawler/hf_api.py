@@ -56,17 +56,21 @@ class HFGraphCrawler:
         根据模型的下载量定义爬取子节点的数量。
         策略：越火的模型，越值得深挖其衍生的生态系统。
         """
-        if downloads > 100000:
-            return 50  # 顶流模型（如 Llama-3），获取前 50 个微调版
+        if downloads > 1000000:
+            return 50  # 超级基座（Llama/Mistral系列），值得深度挖掘完整生态
+        elif downloads > 100000:
+            return 30  # 顶流模型
         elif downloads > 10000:
-            return 20  # 热门模型，获取前 20 个
+            return 15  # 热门模型
         elif downloads > 1000:
-            return 5  # 普通模型，获取前 5 个
+            return 10  # 普通模型（从5提高到10，增加样本多样性）
+        elif downloads > 100:
+            return 5  # 有一定关注度的长尾模型
         else:
-            return 2  # 冷门或长尾模型，仅获取前 2 个
+            return 2  # 几乎无人使用的模型
 
     def fetch_model_and_dependencies(self, model_id, depth=0):
-        if model_id in self.visited_models or depth > 4:
+        if model_id in self.visited_models or depth > 8:
             return
 
         self.visited_models.add(model_id)
@@ -112,10 +116,19 @@ class HFGraphCrawler:
             # 处理上游逻辑（保持原逻辑）
             if info.cardData and 'base_model' in info.cardData:
                 bm = info.cardData['base_model']
+                # 兼容字符串或列表格式
                 bases = [bm] if isinstance(bm, str) else bm
+
                 for b_id in bases:
-                    if isinstance(b_id, str):
+                    # 确保 b_id 是合法的字符串（有时元数据可能不规范）
+                    if isinstance(b_id, str) and b_id.strip():
+                        # 1. 添加边：父模型 (b_id) -> 当前模型 (model_id)
                         self._add_edge(b_id, model_id, "base_of")
+
+                        # 2. 递归检查：如果父模型没被访问过，且未超过最大深度，则主动抓取
+                        if b_id not in self.visited_models and depth <= 8:
+                            logger.info(f"{indent}    发现上游父模型: {b_id}，开始追溯...")
+                            self.fetch_model_and_dependencies(b_id, depth + 1)
 
         except Exception as e:
             logger.error(f"{indent}    Error processing {model_id}: {e}")
