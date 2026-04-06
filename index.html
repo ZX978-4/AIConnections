@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI模型血缘关系可视化 - API版</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: #111;
+            border-right: 1px solid #222;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        h1 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #61dafb;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 13px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #61dafb;
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #222;
+            border-radius: 4px;
+            background: #0a0a0a;
+            margin-top: 4px;
+        }
+
+        .search-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            border-bottom: 1px solid #1a1a1a;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #1a1a1a;
+        }
+
+        .search-item small {
+            color: #666;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .btn {
+            padding: 8px;
+            background: transparent;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: #61dafb;
+            color: #61dafb;
+        }
+
+        .btn-primary {
+            background: #61dafb;
+            border-color: #61dafb;
+            color: #0a0a0a;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: #4fa8c7;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 8px;
+        }
+
+        .tab {
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #1a1a1a;
+            color: #61dafb;
+        }
+
+        .tab:hover:not(.active) {
+            background: #161616;
+        }
+
+        .panel {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .panel.active {
+            display: flex;
+        }
+
+        .relation-card {
+            background: #161616;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .relation-card:hover {
+            border-color: #61dafb;
+            background: #1a1a1a;
+        }
+
+        .relation-card .title {
+            font-size: 13px;
+            color: #e0e0e0;
+            margin-bottom: 4px;
+        }
+
+        .relation-card .meta {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .relation-card .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #222;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-box {
+            background: #161616;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #61dafb;
+        }
+
+        .stat-box .label {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .main {
+            flex: 1;
+            position: relative;
+        }
+
+        #graph {
+            width: 100%;
+            height: 100%;
+        }
+
+        .info-bar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(17, 17, 17, 0.95);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px 16px;
+            display: flex;
+            gap: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-item .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #61dafb;
+        }
+
+        .info-item .label {
+            font-size: 10px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(17, 17, 17, 0.95);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 240px;
+            z-index: 1000;
+        }
+
+        .tooltip h4 {
+            color: #61dafb;
+            margin-bottom: 6px;
+        }
+
+        .tooltip p {
+            color: #666;
+            margin: 3px 0;
+        }
+
+        .tooltip span {
+            color: #e0e0e0;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(17, 17, 17, 0.95);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 0;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .node {
+            cursor: pointer;
+            stroke: #0a0a0a;
+            stroke-width: 2;
+        }
+
+        .node:hover {
+            stroke: #61dafb;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 6px rgba(97, 218, 251, 0.4));
+        }
+
+        .node.center {
+            stroke: #ffd700;
+        }
+
+        .link {
+            stroke: #333;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .node-label {
+            fill: #888;
+            font-size: 10px;
+            pointer-events: none;
+            text-anchor: middle;
+        }
+
+        .arrow {
+            fill: #333;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #61dafb;
+            font-size: 14px;
+        }
+
+        .error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+        }
+
+
+        /* 全局美化滚动条（极简隐形风） */
+        /* 桌面端显示，移动端自动隐藏 */
+        @media (min-width: 768px) {
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #ccc;
+                border-radius: 3px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #aaa;
+            }
+
+            /* Firefox */
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: #ccc transparent;
+            }
+        }
+
+        /* 移动端完全隐藏滚动条，保留滚动 */
+        @media (max-width: 767px) {
+            ::-webkit-scrollbar {
+                display: none;
+            }
+
+            * {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+    <base target="_blank">
+</head>
+
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <h1>🔗 模型血缘查询</h1>
+
+            <!-- 搜索 -->
+            <div class="section">
+                <label>搜索模型</label>
+                <input type="text" id="searchInput" placeholder="输入模型名称..." autocomplete="off">
+                <div class="search-results" id="searchResults" style="display: none;"></div>
+            </div>
+
+            <!-- 当前选中 -->
+            <div class="section" id="currentModelSection" style="display: none;">
+                <label>当前选中</label>
+                <div style="background: #1a1a1a; border: 1px solid #333; border-radius: 4px; padding: 10px;">
+                    <div id="currentModelName" style="font-size: 14px; color: #61dafb; margin-bottom: 4px;"></div>
+                    <div id="currentModelMeta" style="font-size: 11px; color: #666;"></div>
+                </div>
+            </div>
+
+            <!-- 深度控制 -->
+            <div class="section">
+                <label>探索深度</label>
+                <select id="depthSelect">
+                    <option value="1">1层 (直接关系)</option>
+                    <option value="2" selected>2层 (推荐)</option>
+                    <option value="3">3层</option>
+                    <option value="4">4层</option>
+                    <option value="5">5层 (完整)</option>
+                </select>
+            </div>
+
+            <!-- 关系标签页 -->
+            <div class="section">
+                <div class="tabs">
+                    <div class="tab active" data-tab="parents">上游</div>
+                    <div class="tab" data-tab="children">下游</div>
+                </div>
+
+                <div class="panel active" id="parentsPanel">
+                    <div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">
+                        搜索并选择模型查看上游依赖
+                    </div>
+                </div>
+
+                <div class="panel" id="childrenPanel">
+                    <div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">
+                        搜索并选择模型查看下游衍生
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计 -->
+            <div class="section">
+                <label>统计信息</label>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="value" id="statAncestors">-</div>
+                        <div class="label">上游节点</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="statDescendants">-</div>
+                        <div class="label">下游节点</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="statTotal">-</div>
+                        <div class="label">总相关</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="statDepth">-</div>
+                        <div class="label">最大深度</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="refreshBtn">🔄 刷新数据</button>
+        </div>
+
+        <!-- 主画布 -->
+        <div class="main">
+            <div class="info-bar" id="infoBar" style="display: none;">
+                <div class="info-item">
+                    <div class="value" id="infoName">-</div>
+                    <div class="label">模型</div>
+                </div>
+                <div class="info-item">
+                    <div class="value" id="infoAuthor">-</div>
+                    <div class="label">作者</div>
+                </div>
+                <div class="info-item">
+                    <div class="value" id="infoDownloads">-</div>
+                    <div class="label">下载量</div>
+                </div>
+            </div>
+
+            <div id="graph">
+                <div class="loading">连接后端API...</div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ff6b6b;"></div>
+                    <span>上游依赖</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #61dafb;"></div>
+                    <span>下游衍生</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #9d4edd;"></div>
+                    <span>数据集</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ffd700;"></div>
+                    <span>中心模型</span>
+                </div>
+            </div>
+
+            <div class="tooltip" id="tooltip"></div>
+        </div>
+    </div>
+
+    <script>
+        // API配置
+        const API_BASE = 'http://localhost:5000/api';
+
+        // 状态
+        let state = {
+            currentModel: null,
+            depth: 2,
+            lineageData: null,
+            searchTimeout: null
+        };
+
+        // 初始化SVG
+        const width = window.innerWidth - 320;
+        const height = window.innerHeight;
+
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // 箭头
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 20)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("class", "arrow");
+
+        const g = svg.append("g");
+
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (e) => g.attr("transform", e.transform));
+
+        svg.call(zoom);
+
+        const loadingDiv = d3.select("#graph").select(".loading");
+
+        // API调用
+        async function fetchAPI(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                showError(`API连接失败: ${error.message}<br>请确保后端服务已启动: python app.py`);
+                return null;
+            }
+        }
+
+        function showError(msg) {
+            d3.select("#graph").html(`<div class="error">${msg}</div>`);
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(state.searchTimeout);
+            const query = e.target.value.trim();
+
+            if (!query) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+
+            state.searchTimeout = setTimeout(async () => {
+                const models = await fetchAPI(`/models?q=${encodeURIComponent(query)}`);
+                if (models) {
+                    renderSearchResults(models);
+                }
+            }, 300);
+        });
+
+        function renderSearchResults(models) {
+            const container = document.getElementById('searchResults');
+            if (models.length === 0) {
+                container.innerHTML = '<div class="search-item">未找到匹配模型</div>';
+            } else {
+                container.innerHTML = models.map(m => `
+          <div class="search-item" data-model="${m}">
+            <div>${m.split('/').pop()}</div>
+            <small>${m}</small>
+          </div>
+        `).join('');
+
+                container.querySelectorAll('.search-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        selectModel(item.dataset.model);
+                        container.style.display = 'none';
+                        document.getElementById('searchInput').value = '';
+                    });
+                });
+            }
+            container.style.display = 'block';
+        }
+
+        // 选择模型
+        async function selectModel(modelId) {
+            state.currentModel = modelId;
+            const depth = parseInt(document.getElementById('depthSelect').value);
+
+            // 加载血缘数据
+            const data = await fetchAPI(`/model/${encodeURIComponent(modelId)}/lineage?depth=${depth}`);
+            if (!data) return;
+
+            state.lineageData = data;
+
+            // 更新UI
+            updateSidebar(data);
+            updateInfoBar(data.model);
+            renderGraph(data);
+        }
+
+        function updateSidebar(data) {
+            // 当前模型
+            document.getElementById('currentModelSection').style.display = 'block';
+            document.getElementById('currentModelName').textContent = data.model.id.split('/').pop();
+            document.getElementById('currentModelMeta').textContent = `${data.model.author} · ${data.model.params} · ${formatDownloads(data.model.downloads)}`;
+
+            // 统计
+            document.getElementById('statAncestors').textContent = data.stats.ancestors_count;
+            document.getElementById('statDescendants').textContent = data.stats.descendants_count;
+            document.getElementById('statTotal').textContent = data.stats.total_related;
+            document.getElementById('statDepth').textContent = data.stats.depth || document.getElementById('depthSelect').value;
+
+            // 上游面板
+            const parentsPanel = document.getElementById('parentsPanel');
+            if (data.ancestors.length === 0) {
+                parentsPanel.innerHTML = '<div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">无上游依赖</div>';
+            } else {
+                parentsPanel.innerHTML = data.ancestors.map(a => `
+          <div class="relation-card" data-model="${a.id}">
+            <div class="title">${a.id.split('/').pop()}</div>
+            <div class="meta">${a.info.author} · ${formatDownloads(a.info.downloads)}</div>
+            <span class="badge">${a.relation} · 深度${a.depth}</span>
+          </div>
+        `).join('');
+            }
+
+            // 下游面板
+            const childrenPanel = document.getElementById('childrenPanel');
+            if (data.descendants.length === 0) {
+                childrenPanel.innerHTML = '<div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">无下游衍生</div>';
+            } else {
+                childrenPanel.innerHTML = data.descendants.map(d => `
+          <div class="relation-card" data-model="${d.id}">
+            <div class="title">${d.id.split('/').pop()}</div>
+            <div class="meta">${d.info.author} · ${formatDownloads(d.info.downloads)}</div>
+            <span class="badge">${d.relation} · 深度${d.depth}</span>
+          </div>
+        `).join('');
+            }
+
+            // 绑定卡片点击
+            document.querySelectorAll('.relation-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    selectModel(card.dataset.model);
+                });
+            });
+        }
+
+        function updateInfoBar(model) {
+            document.getElementById('infoBar').style.display = 'flex';
+            document.getElementById('infoName').textContent = model.id.split('/').pop();
+            document.getElementById('infoAuthor').textContent = model.author;
+            document.getElementById('infoDownloads').textContent = formatDownloads(model.downloads);
+        }
+
+        function formatDownloads(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+            return num.toString();
+        }
+
+        // 修改后的 renderGraph 函数 - 严格使用后端返回的 parent_id
+
+        function renderGraph(data) {
+            if (!loadingDiv.empty()) {
+                loadingDiv.style('display', 'none');
+            }
+
+            // 构建节点映射
+            const nodeMap = new Map();
+            const centerId = data.model.id;
+
+            // 中心节点
+            nodeMap.set(centerId, {
+                ...data.model,
+                id: centerId,
+                isCenter: true,
+                depth: 0
+            });
+
+            // 添加祖先节点（上游）- 深度为负
+            data.ancestors.forEach(a => {
+                if (!nodeMap.has(a.id)) {
+                    nodeMap.set(a.id, {
+                        ...a.info,
+                        id: a.id,
+                        isCenter: false,
+                        depth: -a.depth,
+                        relation: a.relation,
+                        // 严格使用后端返回的 parent_id
+                        parentId: a.parent_id
+                    });
+                }
+            });
+
+            // 添加后代节点（下游）- 深度为正
+            data.descendants.forEach(d => {
+                if (!nodeMap.has(d.id)) {
+                    nodeMap.set(d.id, {
+                        ...d.info,
+                        id: d.id,
+                        isCenter: false,
+                        depth: d.depth,
+                        relation: d.relation,
+                        // 严格使用后端返回的 parent_id
+                        parentId: d.parent_id
+                    });
+                }
+            });
+
+            const allNodes = Array.from(nodeMap.values());
+
+            // 构建边 - 严格根据 parentId 连接
+            const links = [];
+            allNodes.forEach(node => {
+                // 只为中心节点以外的节点创建边，且 parentId 必须存在且在 nodeMap 中
+                if (!node.isCenter && node.parentId && nodeMap.has(node.parentId)) {
+                    links.push({
+                        source: node.parentId,
+                        target: node.id,
+                        relation: node.relation
+                    });
+                }
+            });
+
+            // 调试输出 - 检查连接关系
+            console.log("Links:", links.map(l => `${l.source} -> ${l.target}`));
+            console.log("Ancestors parent_id:", data.ancestors.map(a => `${a.id}(depth=${a.depth}): parent=${a.parent_id}`));
+            console.log("Descendants parent_id:", data.descendants.map(d => `${d.id}(depth=${d.depth}): parent=${d.parent_id}`));
+
+            // 清除旧内容
+            g.selectAll("*").remove();
+
+            // 树状布局计算
+            const levelWidth = 220;
+            const nodeHeight = 80;
+
+            // 按深度分组
+            const nodesByDepth = new Map();
+            allNodes.forEach(node => {
+                const d = node.depth;
+                if (!nodesByDepth.has(d)) nodesByDepth.set(d, []);
+                nodesByDepth.get(d).push(node);
+            });
+
+            // 计算位置 - 确保同层节点不重叠
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const depthKeys = Array.from(nodesByDepth.keys()).sort((a, b) => a - b);
+
+            depthKeys.forEach(depth => {
+                const nodesAtDepth = nodesByDepth.get(depth);
+                const x = centerX + depth * levelWidth;
+                const totalHeight = (nodesAtDepth.length - 1) * nodeHeight;
+                const startY = centerY - totalHeight / 2;
+
+                nodesAtDepth.forEach((node, i) => {
+                    node.x = x;
+                    node.y = startY + i * nodeHeight;
+                });
+            });
+
+            // 绘制连线 - 使用贝塞尔曲线
+            const link = g.selectAll(".link")
+                .data(links)
+                .enter()
+                .append("path")
+                .attr("class", "link")
+                .attr("d", d => {
+                    const source = nodeMap.get(d.source);
+                    const target = nodeMap.get(d.target);
+                    if (!source || !target) return "";
+
+                    // 水平贝塞尔曲线
+                    const dx = target.x - source.x;
+                    return `M${source.x},${source.y} 
+                    C${source.x + dx * 0.5},${source.y} 
+                     ${target.x - dx * 0.5},${target.y} 
+                     ${target.x},${target.y}`;
+                })
+                .attr("marker-end", "url(#arrow)");
+
+            // 绘制节点组
+            const node = g.selectAll(".node-group")
+                .data(allNodes)
+                .enter()
+                .append("g")
+                .attr("class", "node-group")
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                .on("click", (e, d) => {
+                    if (!d.isCenter) selectModel(d.id);
+                })
+                .on("mouseover", (e, d) => {
+                    const tooltip = document.getElementById('tooltip');
+                    tooltip.innerHTML = `
+                <h4>${d.id}</h4>
+                <p>类型: <span>${d.type}</span></p>
+                <p>作者: <span>${d.author}</span></p>
+                <p>参数: <span>${d.params}</span></p>
+                <p>下载: <span>${d.downloads?.toLocaleString()}</span></p>
+                <p>许可: <span>${d.license}</span></p>
+                ${d.relation ? `<p>关系: <span>${d.relation}</span></p>` : ''}
+                ${d.depth !== 0 ? `<p>层级: <span>${d.depth > 0 ? '下游' : '上游'} ${Math.abs(d.depth)}</span></p>` : ''}
+            `;
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY + 10) + 'px';
+                    tooltip.style.opacity = 1;
+
+                    // 高亮相关连线
+                    link.style("stroke", l =>
+                        l.source === d.id || l.target === d.id ? "#61dafb" : "#333"
+                    ).style("stroke-opacity", l =>
+                        l.source === d.id || l.target === d.id ? 1 : 0.3
+                    );
+                })
+                .on("mouseout", () => {
+                    document.getElementById('tooltip').style.opacity = 0;
+                    link.style("stroke", "#333").style("stroke-opacity", 1);
+                });
+
+            // 节点圆圈
+            node.append("circle")
+                .attr("class", d => `node ${d.isCenter ? 'center' : ''}`)
+                .attr("r", d => {
+                    if (d.isCenter) return 28;
+                    const baseSize = Math.max(8, 16 - Math.abs(d.depth) * 2);
+                    const popularityBonus = Math.min(6, ((d.downloads || 0) / 1000000));
+                    return baseSize + popularityBonus;
+                })
+                .attr("fill", d => {
+                    if (d.isCenter) return "#ffd700";
+                    if (d.type === 'dataset') return "#9d4edd";
+                    if (d.depth < 0) return "#ff6b6b";  // 上游 - 红色
+                    return "#61dafb";  // 下游 - 蓝色
+                });
+
+            // 节点标签
+            node.append("text")
+                .attr("class", "node-label")
+                .attr("y", d => {
+                    const r = d.isCenter ? 28 : Math.max(8, 16 - Math.abs(d.depth) * 2) + 6;
+                    return r + 12;
+                })
+                .style("font-size", d => d.isCenter ? "12px" : `${Math.max(9, 11 - Math.abs(d.depth))}px`)
+                .style("fill", d => d.isCenter ? "#ffd700" : "#888")
+                .text(d => d.id.split('/').pop());
+        }
+
+        // 标签切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Panel').classList.add('active');
+            });
+        });
+
+        // 深度切换
+        document.getElementById('depthSelect').addEventListener('change', (e) => {
+            if (state.currentModel) {
+                selectModel(state.currentModel);
+            }
+        });
+
+        // 刷新
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            if (state.currentModel) {
+                selectModel(state.currentModel);
+            }
+        });
+
+        // 窗口调整
+        window.addEventListener('resize', () => {
+            const newWidth = window.innerWidth - 320;
+            const newHeight = window.innerHeight;
+            svg.attr("width", newWidth).attr("height", newHeight);
+            if (state.lineageData) {
+                renderGraph(state.lineageData);
+            }
+        });
+
+        // 初始化检查
+        fetchAPI('/health').then(data => {
+            if (data && !loadingDiv.empty()) {
+                loadingDiv.text('搜索模型开始探索...');
+            }
+        });
+    </script>
+</body>
+
+</html>
