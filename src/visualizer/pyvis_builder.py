@@ -19,7 +19,7 @@ def generate_pyvis_graph(output_path="output/html/supply_chain_graph.html"):
     
     # 添加节点
     for _, row in nodes_df.iterrows():
-        title = f"ID: {row['id']}<br>Type: {row['type']}<br>Author: {row['author']}<br>Downloads: {row['downloads']}"
+        title = f"ID: {row['id']}<br>Type: {row['type']}<br>Author: {row['author']}<br>Task: {row['task']}<br>Downloads: {row['downloads']}"
         color = color_map.get(row['type'], "#95E1D3")
         
         # 根据下载量调整节点大小

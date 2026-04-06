@@ -72,13 +72,13 @@ def generate_d3_html(
         label = node_id.split('/')[-1] if show_labels else ""
         children_count = len(list(G.successors(node_id)))
         hover_text = f"""
-        <b>{node_id}</b><br>
-        类型: {node_type}<br>
-        作者: {node_data.get('author', 'unknown')}<br>
-        参数规模: {node_data.get('params', '-')}<br>
-        下载量: {node_data.get('downloads', 0):,}<br>
-        许可证: {node_data.get('license', 'unknown')}<br>
-        衍生模型数: {children_count}
+                <b>{node_id}</b><br>
+                类型: {node_type}<br>
+                作者: {node_data.get('author', 'unknown')}<br>
+                任务类型: {node_data.get('task', 'unknown')}<br>
+                下载量: {node_data.get('downloads', 0):,}<br>
+                许可证: {node_data.get('license', 'unknown')}<br>
+                衍生模型数: {children_count}
         """
 
         nodes.append({
