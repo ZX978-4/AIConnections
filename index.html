@@ -490,6 +490,8 @@
             </div>
 
             <button class="btn btn-primary" id="refreshBtn">🔄 刷新数据</button>
+            <button class="btn" id="exportSbomBtn">📄 导出SBOM</button>
+            <button class="btn" id="verifyBtn">🔐 验证完整性</button>
         </div>
 
         <!-- 主画布 -->
@@ -924,6 +926,55 @@
         document.getElementById('refreshBtn').addEventListener('click', () => {
             if (state.currentModel) {
                 selectModel(state.currentModel);
+            }
+        });
+
+        // 导出SBOM
+        document.getElementById('exportSbomBtn').addEventListener('click', async () => {
+            if (!state.currentModel) {
+                alert('请先选择一个模型');
+                return;
+            }
+
+            const sbomData = await fetchAPI(`/model/${encodeURIComponent(state.currentModel)}/sbom`);
+            if (sbomData) {
+                // 下载SBOM JSON文件
+                const dataStr = JSON.stringify(sbomData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `sbom-${state.currentModel.replace('/', '-')}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        // 验证完整性
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
+            if (!state.currentModel) {
+                alert('请先选择一个模型');
+                return;
+            }
+
+            const verificationData = await fetchAPI(`/model/${encodeURIComponent(state.currentModel)}/verify`);
+            if (verificationData) {
+                const message = `
+模型完整性验证结果:
+模型: ${verificationData.model_id}
+哈希: ${verificationData.model_hash}
+状态: ${verificationData.verification_status}
+血缘完整性: ${verificationData.lineage_integrity ? '通过' : '失败'}
+时间戳: ${verificationData.timestamp}
+
+详细信息:
+上游依赖: ${verificationData.details.ancestors_count || 0}
+下游衍生: ${verificationData.details.descendants_count || 0}
+总关系数: ${verificationData.details.total_relations || 0}
+                `;
+                alert(message);
             }
         });
 

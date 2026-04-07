@@ -1,0 +1,43 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT-52100303-TranPhuocSang-vilawllama3-q4",
+  "creationInfo": {
+    "created": "2026-04-07T11:28:22.672568",
+    "creators": [
+      "Tool: AIConnections Platform"
+    ]
+  },
+  "dataLicense": "CC0-1.0",
+  "name": "AI Model SBOM - 52100303-TranPhuocSang/vilawllama3-q4",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-52100303-TranPhuocSang-vilawllama3-q4",
+      "copyrightText": "NOASSERTION",
+      "description": "AI Model with None task, 127 downloads",
+      "downloadLocation": "https://huggingface.co/52100303-TranPhuocSang/vilawllama3-q4",
+      "filesAnalyzed": false,
+      "licenseConcluded": "unknown",
+      "name": "52100303-TranPhuocSang/vilawllama3-q4",
+      "supplier": "Organization: 52100303-TranPhuocSang",
+      "versionInfo": "1.0"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-unsloth-Meta-Llama-3.1-8B-Instruct-bnb-4bit",
+      "copyrightText": "NOASSERTION",
+      "description": "AI Model with text-generation task, 299228 downloads",
+      "downloadLocation": "https://huggingface.co/unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit",
+      "filesAnalyzed": false,
+      "licenseConcluded": "llama3.1",
+      "name": "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit",
+      "supplier": "Organization: unsloth",
+      "versionInfo": "1.0"
+    }
+  ],
+  "relationships": [
+    {
+      "relatedSpdxElement": "SPDXRef-Package-unsloth-Meta-Llama-3.1-8B-Instruct-bnb-4bit",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-Package-52100303-TranPhuocSang-vilawllama3-q4"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

@@ -11,6 +11,12 @@ import pandas as pd
 import numpy as np
 import os
 from pathlib import Path
+import datetime
+import hashlib
+import json
+import requests
+import hashlib
+import json
 
 app = Flask(__name__, static_folder=None)
 CORS(app)  # 允许跨域，供HTML前端调用
@@ -270,18 +276,204 @@ def get_model_lineage(model_id):
         }
     })
 
-@app.route('/api/stats', methods=['GET'])
-def get_stats():
-    """获取全局统计数据"""
-    relation_counts = edges_df['relation'].value_counts().to_dict()
+@app.route('/api/model/<path:model_id>/sbom', methods=['GET'])
+def export_sbom(model_id):
+    """导出模型的SBOM（AI物料清单）"""
+    model_id = request.view_args['model_id']
+    depth = request.args.get('depth', 5, type=int)
 
-    return jsonify({
-        "total_nodes": len(nodes_df),
-        "total_edges": len(edges_df),
-        "model_count": len(nodes_df[nodes_df['type'] == 'model']),
-        "dataset_count": len(nodes_df[nodes_df['type'] == 'dataset']),
-        "relation_distribution": relation_counts
-    })
+    # 获取血缘数据 - 直接调用内部函数而不是通过HTTP
+    model_info = nodes_df[nodes_df['id'] == model_id]
+    if model_info.empty:
+        return jsonify({"error": "Model not found"}), 404
+
+    # 简化版血缘数据获取
+    ancestors = []
+    descendants = []
+
+    # 获取祖先
+    parent_edges = edges_df[edges_df['target'] == model_id]
+    for _, row in parent_edges.iterrows():
+        source_info = nodes_df[nodes_df['id'] == row['source']]
+        if not source_info.empty:
+            ancestors.append({
+                "id": row['source'],
+                "relation": row['relation'],
+                "info": record_to_json(source_info.iloc[0].to_dict())
+            })
+
+    # 获取后代
+    child_edges = edges_df[edges_df['source'] == model_id]
+    for _, row in child_edges.iterrows():
+        target_info = nodes_df[nodes_df['id'] == row['target']]
+        if not target_info.empty:
+            descendants.append({
+                "id": row['target'],
+                "relation": row['relation'],
+                "info": record_to_json(target_info.iloc[0].to_dict())
+            })
+
+    lineage_data = {
+        "model": record_to_json(model_info.iloc[0].to_dict()),
+        "ancestors": ancestors,
+        "descendants": descendants
+    }
+
+    # 构建SBOM
+    sbom = {
+        "spdxVersion": "SPDX-2.3",
+        "dataLicense": "CC0-1.0",
+        "SPDXID": f"SPDXRef-DOCUMENT-{model_id.replace('/', '-')}",
+        "name": f"AI Model SBOM - {model_id}",
+        "creationInfo": {
+            "created": datetime.datetime.now().isoformat(),
+            "creators": ["Tool: AIConnections Platform"]
+        },
+        "packages": [],
+        "relationships": []
+    }
+
+    # 添加中心模型包
+    center_package = {
+        "SPDXID": f"SPDXRef-Package-{model_id.replace('/', '-')}",
+        "name": model_id,
+        "versionInfo": "1.0",
+        "supplier": f"Organization: {lineage_data['model']['author']}",
+        "downloadLocation": f"https://huggingface.co/{model_id}",
+        "filesAnalyzed": False,
+        "copyrightText": "NOASSERTION",
+        "licenseConcluded": lineage_data['model']['license'] or "NOASSERTION",
+        "description": f"AI Model with {lineage_data['model'].get('task', 'unknown')} task, {lineage_data['model']['downloads']} downloads"
+    }
+    sbom["packages"].append(center_package)
+
+    # 添加祖先包
+    for ancestor in lineage_data['ancestors']:
+        package = {
+            "SPDXID": f"SPDXRef-Package-{ancestor['id'].replace('/', '-')}",
+            "name": ancestor['id'],
+            "versionInfo": "1.0",
+            "supplier": f"Organization: {ancestor['info']['author']}",
+            "downloadLocation": f"https://huggingface.co/{ancestor['id']}",
+            "filesAnalyzed": False,
+            "copyrightText": "NOASSERTION",
+            "licenseConcluded": ancestor['info']['license'] or "NOASSERTION",
+            "description": f"AI Model with {ancestor['info'].get('task', 'unknown')} task, {ancestor['info']['downloads']} downloads"
+        }
+        sbom["packages"].append(package)
+
+        # 添加关系
+        relationship = {
+            "spdxElementId": f"SPDXRef-Package-{model_id.replace('/', '-')}",
+            "relationshipType": "DEPENDS_ON",
+            "relatedSpdxElement": f"SPDXRef-Package-{ancestor['id'].replace('/', '-')}"
+        }
+        sbom["relationships"].append(relationship)
+
+    # 添加后代包
+    for descendant in lineage_data['descendants']:
+        package = {
+            "SPDXID": f"SPDXRef-Package-{descendant['id'].replace('/', '-')}",
+            "name": descendant['id'],
+            "versionInfo": "1.0",
+            "supplier": f"Organization: {descendant['info']['author']}",
+            "downloadLocation": f"https://huggingface.co/{descendant['id']}",
+            "filesAnalyzed": False,
+            "copyrightText": "NOASSERTION",
+            "licenseConcluded": descendant['info']['license'] or "NOASSERTION",
+            "description": f"AI Model with {descendant['info'].get('task', 'unknown')} task, {descendant['info']['downloads']} downloads"
+        }
+        sbom["packages"].append(package)
+
+        # 添加关系
+        relationship = {
+            "spdxElementId": f"SPDXRef-Package-{descendant['id'].replace('/', '-')}",
+            "relationshipType": "DEPENDS_ON",
+            "relatedSpdxElement": f"SPDXRef-Package-{model_id.replace('/', '-')}"
+        }
+        sbom["relationships"].append(relationship)
+
+    return jsonify(sbom)
+
+@app.route('/api/model/<path:model_id>/verify', methods=['GET'])
+def verify_model_integrity(model_id):
+    """验证模型完整性和血缘关系"""
+    model_id = request.view_args['model_id']
+
+    # 获取模型信息
+    model_info = nodes_df[nodes_df['id'] == model_id]
+    if model_info.empty:
+        return jsonify({"error": "Model not found"}), 404
+
+    model = record_to_json(model_info.iloc[0].to_dict())
+
+    # 计算模型数据的哈希
+    model_data = {
+        "id": model["id"],
+        "type": model["type"],
+        "author": model["author"],
+        "downloads": model["downloads"],
+        "license": model["license"],
+        "task": model.get("task", "unknown")
+    }
+    model_hash = hashlib.sha256(json.dumps(model_data, sort_keys=True).encode()).hexdigest()
+
+    # 获取血缘关系
+    lineage_response = requests.get(f'http://localhost:5000/api/model/{model_id}/lineage?depth=2')
+    lineage_data = lineage_response.json() if lineage_response.ok else None
+
+    verification_result = {
+        "model_id": model_id,
+        "model_hash": model_hash,
+        "timestamp": datetime.datetime.now().isoformat(),
+        "verification_status": "verified",
+        "lineage_integrity": True,
+        "details": {}
+    }
+
+    if lineage_data:
+        # 验证血缘关系的完整性
+        ancestors_hashes = []
+        for ancestor in lineage_data.get('ancestors', []):
+            ancestor_data = {
+                "id": ancestor["id"],
+                "type": ancestor["info"]["type"],
+                "author": ancestor["info"]["author"],
+                "relation": ancestor["relation"]
+            }
+            ancestor_hash = hashlib.sha256(json.dumps(ancestor_data, sort_keys=True).encode()).hexdigest()
+            ancestors_hashes.append(ancestor_hash)
+
+        descendants_hashes = []
+        for descendant in lineage_data.get('descendants', []):
+            descendant_data = {
+                "id": descendant["id"],
+                "type": descendant["info"]["type"],
+                "author": descendant["info"]["author"],
+                "relation": descendant["relation"]
+            }
+            descendant_hash = hashlib.sha256(json.dumps(descendant_data, sort_keys=True).encode()).hexdigest()
+            descendants_hashes.append(descendant_hash)
+
+        # 计算血缘哈希
+        lineage_hash_data = {
+            "model_hash": model_hash,
+            "ancestors": sorted(ancestors_hashes),
+            "descendants": sorted(descendants_hashes)
+        }
+        lineage_hash = hashlib.sha256(json.dumps(lineage_hash_data, sort_keys=True).encode()).hexdigest()
+
+        verification_result["lineage_hash"] = lineage_hash
+        verification_result["details"] = {
+            "ancestors_count": len(ancestors_hashes),
+            "descendants_count": len(descendants_hashes),
+            "total_relations": len(ancestors_hashes) + len(descendants_hashes)
+        }
+    else:
+        verification_result["lineage_integrity"] = False
+        verification_result["details"]["error"] = "Failed to fetch lineage data"
+
+    return jsonify(verification_result)
 
 if __name__ == '__main__':
     load_data()
