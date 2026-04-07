@@ -499,7 +499,7 @@
             <div class="info-bar" id="infoBar" style="display: none;">
                 <div class="info-item">
                     <div class="value" id="infoName">-</div>
-                    <div class="label">模型</div>
+                    <div class="label">模型/数据集</div>
                 </div>
                 <div class="info-item">
                     <div class="value" id="infoAuthor">-</div>
@@ -530,7 +530,7 @@
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #ffd700;"></div>
-                    <span>中心模型</span>
+                    <span>选中的模型/数据集</span>
                 </div>
             </div>
 
@@ -855,7 +855,7 @@
                 <h4>${d.id}</h4>
                 <p>类型: <span>${d.type}</span></p>
                 <p>作者: <span>${d.author}</span></p>
-                <p>参数: <span>${d.params}</span></p>
+                <p>任务: <span>${d.task}</span></p>
                 <p>下载: <span>${d.downloads?.toLocaleString()}</span></p>
                 <p>许可: <span>${d.license}</span></p>
                 ${d.relation ? `<p>关系: <span>${d.relation}</span></p>` : ''}
