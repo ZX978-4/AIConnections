@@ -1,27 +1,27 @@
-import json
+﻿import json
 import networkx as nx
 
 
 def generate_d3_html(
     G,
     center_node=None,
-    layout_type='spring',
+    layout_type="spring",
     expanded_nodes=None,
     show_labels=True,
     show_edge_labels=False,
     arrow_enabled=True,
     highlight_center=True,
 ):
-    if layout_type == 'spring':
+    if layout_type == "spring":
         pos = nx.spring_layout(G, k=3, iterations=100, seed=42)
-    elif layout_type == 'circular':
+    elif layout_type == "circular":
         pos = nx.circular_layout(G)
-    elif layout_type == 'kamada_kawai':
+    elif layout_type == "kamada_kawai":
         try:
             pos = nx.kamada_kawai_layout(G)
         except Exception:
             pos = nx.spring_layout(G, k=3, iterations=100, seed=42)
-    elif layout_type == 'hierarchical':
+    elif layout_type == "hierarchical":
         try:
             pos = nx.multipartite_layout(G, subset_key="layer")
         except Exception:
@@ -31,24 +31,24 @@ def generate_d3_html(
 
     nodes = []
     color_map = {
-        'model': '#61DAFB',
-        'dataset': '#9D4EDD',
-        'code': '#00FF88',
-        'agent': '#FF6B6B',
-        'unknown': '#CCCCCC',
+        "model": "#61DAFB",
+        "dataset": "#9D4EDD",
+        "code": "#00FF88",
+        "agent": "#FF6B6B",
+        "unknown": "#CCCCCC",
     }
 
-    if layout_type == 'hierarchical' and center_node is not None:
+    if layout_type == "hierarchical" and center_node is not None:
         try:
             for node_id in G.nodes():
                 if node_id == center_node:
-                    G.nodes[node_id]['layer'] = 0
+                    G.nodes[node_id]["layer"] = 0
                 else:
                     try:
                         dist = nx.shortest_path_length(G, source=center_node, target=node_id)
-                        G.nodes[node_id]['layer'] = dist
+                        G.nodes[node_id]["layer"] = dist
                     except Exception:
-                        G.nodes[node_id]['layer'] = 1
+                        G.nodes[node_id]["layer"] = 1
         except Exception:
             pass
 
@@ -58,57 +58,65 @@ def generate_d3_html(
         if center_node and node_id == center_node and highlight_center:
             size = 45
         else:
-            downloads = node_data.get('downloads', 0)
+            downloads = node_data.get("downloads", 0)
             size = min(30, max(12, 12 + downloads / 200000))
 
-        node_type = node_data.get('type', 'unknown')
+        node_type = node_data.get("type", "unknown")
         if center_node and node_id == center_node and highlight_center:
-            color = '#FFD700'
+            color = "#FFD700"
         elif expanded_nodes and node_id in expanded_nodes:
-            color = '#FF6B6B'
+            color = "#FF6B6B"
         else:
-            color = color_map.get(node_type, '#CCCCCC')
+            color = color_map.get(node_type, "#CCCCCC")
 
-        label = node_id.split('/')[-1] if show_labels else ""
+        label = node_id.split("/")[-1] if show_labels else ""
         children_count = len(list(G.successors(node_id)))
         hover_text = f"""
         <b>{node_id}</b><br>
-        类型: {node_type}<br>
-        作者: {node_data.get('author', 'unknown')}<br>
-        参数规模: {node_data.get('params', '-')}<br>
-        下载量: {node_data.get('downloads', 0):,}<br>
-        许可证: {node_data.get('license', 'unknown')}<br>
-        衍生模型数: {children_count}
+        Type: {node_type}<br>
+        Author: {node_data.get('author', 'unknown')}<br>
+        Params: {node_data.get('params', '-') }<br>
+        Downloads: {node_data.get('downloads', 0):,}<br>
+        License: {node_data.get('license', 'unknown')}<br>
+        Children: {children_count}
         """
 
-        nodes.append({
-            "id": node_id,
-            "x": x * 600,
-            "y": y * 600,
-            "size": size,
-            "color": color,
-            "label": label,
-            "hover_text": hover_text,
-            "type": node_type,
-            "has_children": children_count > 0,
-            "children_count": children_count,
-            "is_center": (node_id == center_node),
-        })
+        nodes.append(
+            {
+                "id": node_id,
+                "x": x * 600,
+                "y": y * 600,
+                "size": size,
+                "color": color,
+                "label": label,
+                "hover_text": hover_text,
+                "type": node_type,
+                "has_children": children_count > 0,
+                "children_count": children_count,
+                "is_center": (node_id == center_node),
+            }
+        )
 
     edges = []
     for source, target in G.edges():
         edge_data = G.edges[source, target]
-        edges.append({
-            "source": source,
-            "target": target,
-            "relation": edge_data.get('relation', ''),
-            "show_label": show_edge_labels,
-        })
+        edges.append(
+            {
+                "source": source,
+                "target": target,
+                "relation": edge_data.get("relation", ""),
+                "show_label": show_edge_labels,
+            }
+        )
 
     nodes_json = json.dumps(nodes)
     edges_json = json.dumps(edges)
     expanded_nodes_json = json.dumps(list(expanded_nodes)) if expanded_nodes else "[]"
-    title_text = f"以 {center_node} 为中心的模型血缘图" if center_node else "AI大模型全局血缘图谱"
+    title_text = (
+        f"Model Lineage Graph (center: {center_node})"
+        if center_node
+        else "Global Model Lineage Graph"
+    )
 
     d3_html = f"""
     <!DOCTYPE html>
@@ -175,9 +183,9 @@ def generate_d3_html(
         <div id="graph-container">
             <h3>{title_text}</h3>
             <div class="controls">
-                <button class="control-btn" onclick="expandAll()">展开全部</button>
-                <button class="control-btn" onclick="collapseAll()">折叠全部</button>
-                <button class="control-btn" onclick="resetZoom()">重置视图</button>
+                <button class="control-btn" onclick="expandAll()">Expand All</button>
+                <button class="control-btn" onclick="collapseAll()">Collapse All</button>
+                <button class="control-btn" onclick="resetZoom()">Reset View</button>
             </div>
             <div class="tooltip" id="tooltip"></div>
         </div>
