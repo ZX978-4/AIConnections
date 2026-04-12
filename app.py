@@ -241,6 +241,14 @@ def model_license_check(model_id):
         is_nc = 'non' in un and 'commercial' in un or 'nc' in un
         is_proprietary = any(k in un for k in ['proprietary', 'closed']) or un == 'commercial'
 
+        # treat unknown/empty or ambiguous upstream license as potential conflict (report explicitly)
+        if not un or 'unknown' in un or 'other' in un:
+            conflict = True
+            if not un:
+                conflicts.append(f"上游 {u['id']} 模型许可为空")
+            else:
+                conflicts.append(f"上游 {u['id']} 模型许可为 '{u.get('license')}'（unknown/other），标记为隐患")
+
         if mnorm:
             # model is non-commercial
             if ('non' in mnorm and 'commercial' in mnorm) or 'nc' in mnorm:
@@ -256,7 +264,8 @@ def model_license_check(model_id):
                 conflict = True
                 conflicts.append(f"闭源模型可能无法包含上游 {u['id']} 的 copyleft 代码许可 {u.get('license')}")
 
-        result_up.append({**u, 'conflict': conflict})
+    # keep original license as-is (may be None) and mark conflict
+    result_up.append({**u, 'conflict': conflict})
 
     status = 'ok' if not conflicts else 'conflicts'
 
