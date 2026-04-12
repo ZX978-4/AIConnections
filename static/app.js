@@ -42,6 +42,76 @@ svg.call(zoom);
 const loadingDiv = d3.select("#graph").select(".loading");
 const tooltipEl = document.getElementById('tooltip');
 
+// relation -> muted dark color mapping
+function relationColor(relation) {
+    if (!relation) return '#3b3b3b';
+    const r = relation.toLowerCase();
+    // clearer muted palette for better visual distinction
+    const map = {
+        'trained_on': '#3b3b3b', // dark gray
+        'based_on': '#3f5160',   // muted slate
+        'fine_tune': '#5a3b3b',   // muted maroon
+        'quantization': '#4a4a29',// muted olive
+        'merge': '#473547',       // muted plum
+        'adapter': '#2f5047',     // muted teal
+        'distillation': '#4a4f3f',// muted moss
+        'moe': '#3a3a3a'          // neutral dark
+    };
+    return map[r] || '#3b3b3b';
+}
+
+// lighten hex color by percentage (0-100)
+function lightenColor(hex, percent) {
+    try {
+        const clean = hex.replace('#', '').slice(0,6);
+        const num = parseInt(clean, 16);
+        let r = (num >> 16) & 0xFF;
+        let g = (num >> 8) & 0xFF;
+        let b = num & 0xFF;
+        r = Math.min(255, Math.round(r + (255 - r) * (percent / 100)));
+        g = Math.min(255, Math.round(g + (255 - g) * (percent / 100)));
+        b = Math.min(255, Math.round(b + (255 - b) * (percent / 100)));
+        return '#' + (r.toString(16).padStart(2, '0')) + (g.toString(16).padStart(2, '0')) + (b.toString(16).padStart(2, '0'));
+    } catch (e) {
+        return hex;
+    }
+}
+
+// 在页面上渲染关系颜色图例，便于辨识
+function renderRelationLegend() {
+    const legendContainer = document.querySelector('.legend');
+    if (!legendContainer) return;
+
+    // 定义展示顺序与中文说明
+    const legendItems = [
+        { key: 'trained_on', label: 'trained_on（训练数据）' },
+        { key: 'based_on', label: 'based_on（基础模型/来源）' },
+        { key: 'fine_tune', label: 'fine_tune（微调）' },
+        { key: 'quantization', label: 'quantization（量化）' },
+        { key: 'merge', label: 'merge（模型合并）' },
+        { key: 'adapter', label: 'adapter（适配器/插件）' },
+        { key: 'distillation', label: 'distillation（蒸馏）' },
+        { key: 'moe', label: 'moe（专家模型 MoE）' }
+    ];
+
+    // 在现有图例前插入关系图例标题
+    const header = document.createElement('div');
+    header.className = 'legend-title';
+    header.textContent = '关系颜色 (relation)';
+    legendContainer.insertBefore(header, legendContainer.firstChild);
+
+    // 插入每一项
+    legendItems.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'legend-item relation-legend-item';
+        el.innerHTML = `<div class="legend-dot" style="background: ${relationColor(item.key)};"></div><span>${item.label}</span>`;
+        legendContainer.insertBefore(el, header.nextSibling);
+    });
+}
+
+// 渲染一次关系图例
+renderRelationLegend();
+
 // API调用
 async function fetchAPI(endpoint) {
     try {
@@ -121,7 +191,7 @@ function updateSidebar(data) {
     // 当前模型
     document.getElementById('currentModelSection').style.display = 'block';
     document.getElementById('currentModelName').textContent = data.model.id.split('/').pop();
-    document.getElementById('currentModelMeta').textContent = `${data.model.author} · ${data.model.params} · ${formatDownloads(data.model.downloads)}`;
+    document.getElementById('currentModelMeta').textContent = `${data.model.author} · ${data.model.task} · ${formatDownloads(data.model.downloads)}`;
 
     // 统计
     document.getElementById('statAncestors').textContent = data.stats.ancestors_count;
@@ -280,6 +350,22 @@ function renderGraph(data) {
     });
 
     // 绘制连线 - 使用贝塞尔曲线
+    // helper: relation -> dash pattern
+    function relationDash(relation) {
+        const r = (relation || '').toLowerCase();
+        const map = {
+            'trained_on': '',        // solid
+            'based_on': '6 3',       // long dash
+            'fine_tune': '4 3',      // medium dash
+            'quantization': '2 4',   // dotted-ish
+            'merge': '8 4 2 4',      // complex
+            'adapter': '3 3',        // short dash
+            'distillation': '2 6',   // sparse dots
+            'moe': ''                // solid
+        };
+        return map[r] || '';
+    }
+
     const link = g.selectAll(".link")
         .data(links)
         .enter()
@@ -297,7 +383,12 @@ function renderGraph(data) {
                      ${target.x - dx * 0.5},${target.y} 
                      ${target.x},${target.y}`;
         })
-        .attr("marker-end", "url(#arrow)");
+        .attr("marker-end", "url(#arrow)")
+    .attr("stroke", d => relationColor(d.relation))
+    .attr("stroke-width", d => 2.2)
+    .attr("stroke-linecap", "round")
+    .attr("stroke-dasharray", d => relationDash(d.relation))
+    .style("stroke-opacity", 0.95);
 
     // 绘制节点组
     const node = g.selectAll(".node-group")
@@ -323,11 +414,16 @@ function renderGraph(data) {
             `;
             tooltipEl.style.opacity = 1;
 
-            // 高亮相关连线
-            link.style("stroke", l =>
-                l.source === d.id || l.target === d.id ? "#61dafb" : "#333"
-            ).style("stroke-opacity", l =>
-                l.source === d.id || l.target === d.id ? 1 : 0.3
+            // 高亮相关连线（使用 relationColor 的浅化版本）
+            link.style("stroke", l => {
+                const base = relationColor(l.relation);
+                if (l.source === d.id || l.target === d.id) {
+                    // use a lightened version of the relation color for highlight
+                    return lightenColor(base, 45);
+                }
+                return base;
+            }).style("stroke-opacity", l =>
+                l.source === d.id || l.target === d.id ? 1 : 0.18
             );
         })
         .on("mousemove", (e) => {
@@ -344,7 +440,8 @@ function renderGraph(data) {
         })
         .on("mouseout", () => {
             tooltipEl.style.opacity = 0;
-            link.style("stroke", "#333").style("stroke-opacity", 1);
+            // 恢复每条连线的原始 relation 颜色
+            link.style("stroke", l => relationColor(l.relation)).style("stroke-opacity", 0.9);
         });
 
     // 节点圆圈
