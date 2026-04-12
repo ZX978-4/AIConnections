@@ -4,7 +4,7 @@ const API_BASE = 'http://localhost:5000/api';
 // 状态
 let state = {
     currentModel: null,
-    depth: 2,
+    depth: 99, // 默认展示最大层数
     lineageData: null,
     searchTimeout: null
 };
@@ -173,7 +173,7 @@ function renderSearchResults(models) {
 // 选择模型
 async function selectModel(modelId) {
     state.currentModel = modelId;
-    const depth = parseInt(document.getElementById('depthSelect').value);
+    const depth = state.depth;
 
     // 加载血缘数据
     const data = await fetchAPI(`/model/${encodeURIComponent(modelId)}/lineage?depth=${depth}`);
@@ -199,8 +199,8 @@ function updateSidebar(data) {
     // 统计
     document.getElementById('statAncestors').textContent = data.stats.ancestors_count;
     document.getElementById('statDescendants').textContent = data.stats.descendants_count;
-    document.getElementById('statTotal').textContent = data.stats.total_related;
-    document.getElementById('statDepth').textContent = data.stats.depth || document.getElementById('depthSelect').value;
+    // statTotal element removed from UI
+    // statDepth element removed from UI
 
     // 上游面板
     const parentsPanel = document.getElementById('parentsPanel');
@@ -551,11 +551,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // 深度切换
-document.getElementById('depthSelect').addEventListener('change', (e) => {
-    if (state.currentModel) {
-        selectModel(state.currentModel);
-    }
-});
+// depthSelect control removed; depth is fixed to show maximum by default
 
 // 刷新
 document.getElementById('refreshBtn').addEventListener('click', () => {
