@@ -188,6 +188,9 @@ async function selectModel(modelId) {
 }
 
 function updateSidebar(data) {
+    // 清除先前的证书检测结果（切换模型时避免混淆）
+    const licenseResultEl = document.getElementById('licenseResult');
+    if (licenseResultEl) licenseResultEl.innerHTML = '';
     // 当前模型
     document.getElementById('currentModelSection').style.display = 'block';
     document.getElementById('currentModelName').textContent = data.model.id.split('/').pop();
@@ -233,6 +236,71 @@ function updateSidebar(data) {
             selectModel(card.dataset.model);
         });
     });
+
+    // 绑定证书检测按钮
+    const licenseBtn = document.getElementById('licenseBtn');
+    const licenseResult = document.getElementById('licenseResult');
+    if (licenseBtn) {
+        licenseBtn.onclick = async () => {
+            if (!state.currentModel) return;
+            licenseBtn.disabled = true;
+            licenseResult.textContent = '正在检测证书冲突...';
+            try {
+                await runLicenseCheck(state.currentModel);
+            } catch (e) {
+                licenseResult.textContent = '证书检测失败: ' + e.message;
+            }
+            licenseBtn.disabled = false;
+        }
+    }
+}
+
+// HTML转义辅助
+function escapeHtml(str) {
+    if (!str && str !== 0) return '';
+    return String(str).replace(/[&<>"'`]/g, function (s) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[s];
+    });
+}
+
+// 证书冲突检测：请求后端 /license_check 并展示结果
+async function runLicenseCheck(modelId) {
+    const licenseResult = document.getElementById('licenseResult');
+    licenseResult.innerHTML = '';
+
+    try {
+        const res = await fetch(`${API_BASE}/model/${encodeURIComponent(modelId)}/license_check`);
+        if (!res.ok) {
+            const txt = await res.text();
+            licenseResult.textContent = '后端返回错误: ' + res.status + ' ' + txt;
+            return;
+        }
+        const json = await res.json();
+
+        // 渲染结构化结果
+        let html = `<div style="font-weight:600;">许可检测: ${escapeHtml(json.status || '-')}</div>`;
+        if (json.model_license) html += `<div>模型许可: <strong>${escapeHtml(json.model_license)}</strong></div>`;
+        if (Array.isArray(json.upstream) && json.upstream.length>0) {
+            html += `<div style="margin-top:6px;font-size:12px;color:#ddd;"><strong>上游许可摘要：</strong><ul style='margin:6px 0 6px 16px;padding:0;color:#ddd'>`;
+            json.upstream.forEach(u => {
+                html += `<li>${escapeHtml(u.id)} — ${escapeHtml(u.license || '未知')} ${u.conflict ? '<span style="color:#ff9b9b;font-weight:600;margin-left:6px">冲突</span>' : ''}</li>`;
+            });
+            html += `</ul></div>`;
+        }
+        if (Array.isArray(json.conflicts) && json.conflicts.length>0) {
+            html += `<div style="margin-top:6px;color:#ffb86b;font-size:12px"><strong>检测到 ${json.conflicts.length} 处冲突：</strong><ul style='margin:6px 0 6px 16px;padding:0'>`;
+            json.conflicts.forEach(c => {
+                html += `<li>${escapeHtml(c)}</li>`;
+            });
+            html += `</ul></div>`;
+        } else {
+            html += `<div style="margin-top:6px;color:#9ad1a0;font-size:12px">未发现明显许可冲突。</div>`;
+        }
+
+        licenseResult.innerHTML = html;
+    } catch (e) {
+        licenseResult.textContent = '证书检测出错: ' + e.message;
+    }
 }
 
 function updateInfoBar(model) {

@@ -29,20 +29,14 @@
                 <div style="background: #1a1a1a; border: 1px solid #333; border-radius: 4px; padding: 10px;">
                     <div id="currentModelName" style="font-size: 14px; color: #61dafb; margin-bottom: 4px;"></div>
                     <div id="currentModelMeta" style="font-size: 11px; color: #666;"></div>
+                    <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+                        <button class="btn" id="licenseBtn" style="font-size:12px;padding:6px 8px;">🔏 证书检测</button>
+                        <div id="licenseResult" style="font-size:12px;color:#ccc;flex:1;" aria-live="polite"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 深度控制 -->
-            <div class="section">
-                <label>探索深度</label>
-                <select id="depthSelect">
-                    <option value="1">1层 </option>
-                    <option value="2" selected>2层 </option>
-                    <option value="3">3层 </option>
-                    <option value="4">4层 </option>
-                    <option value="5">5层 </option>
-                </select>
-            </div>
+            <!-- 深度控制 已移除：默认显示最高层 -->
 
             <!-- 关系标签页 -->
             <div class="section">

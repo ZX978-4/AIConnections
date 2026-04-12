@@ -186,6 +186,86 @@ def get_model_children(model_id):
                 "info": record_to_json(target_info.iloc[0].to_dict())
             })
 
+@app.route('/api/model/<path:model_id>/license_check', methods=['GET'])
+def model_license_check(model_id):
+    """Check model license against upstream licenses for obvious conflicts.
+    Returns JSON with model_license, upstream (list of {id, license, conflict}), and conflicts (list of strings).
+    Uses simple heuristics: if model license is 'proprietary' or contains 'non-commercial' then flag upstream permissive licenses that allow commercial use as potential mismatch, and flag GPL-style copyleft vs permissive contradictions.
+    """
+    model_id = request.view_args['model_id']
+
+    # find model row
+    row = nodes_df[nodes_df['id'] == model_id]
+    if row.empty:
+        return jsonify({'status': 'error', 'message': 'Model not found'}), 404
+
+    model_rec = record_to_json(row.iloc[0].to_dict())
+    model_license = (model_rec.get('license') or '').strip()
+
+    # BFS upstream to collect ancestors' licenses
+    visited = set([model_id])
+    queue = [model_id]
+    upstream = []
+
+    while queue:
+        cur = queue.pop(0)
+        parent_edges = edges_df[edges_df['target'] == cur]
+        for _, r in parent_edges.iterrows():
+            src = r['source']
+            if src in visited: continue
+            visited.add(src)
+            src_info = nodes_df[nodes_df['id'] == src]
+            if src_info.empty:
+                continue
+            rec = record_to_json(src_info.iloc[0].to_dict())
+            upstream.append({'id': src, 'license': rec.get('license')})
+            queue.append(src)
+
+    # simple compatibility rules (heuristic):
+    # - If model license contains 'non-commercial' or 'nc' -> warn if upstream license is permissive that allows commercial use
+    # - If model license is permissive (MIT, Apache) and upstream is copyleft (GPL, AGPL) -> conflict (since derived work may need to be copyleft)
+    # - If model license is closed/proprietary and upstream is copyleft -> conflict
+    def _norm(lic):
+        if not lic: return ''
+        return lic.lower()
+
+    mnorm = _norm(model_license)
+    conflicts = []
+    result_up = []
+
+    for u in upstream:
+        un = _norm(u.get('license') or '')
+        conflict = False
+        # detect copyleft
+        is_copyleft = any(k in un for k in ['gpl', 'agpl', 'lgpl', 'copyleft'])
+        is_nc = 'non' in un and 'commercial' in un or 'nc' in un
+        is_proprietary = any(k in un for k in ['proprietary', 'closed']) or un == 'commercial'
+
+        if mnorm:
+            # model is non-commercial
+            if ('non' in mnorm and 'commercial' in mnorm) or 'nc' in mnorm:
+                if not is_nc:
+                    conflict = True
+                    conflicts.append(f"模型许可要求非商业，但上游 {u['id']} 许可为 {u.get('license')}")
+            # model is permissive but upstream copyleft
+            if any(k in mnorm for k in ['mit', 'apache', 'bsd', 'permissive']) and is_copyleft:
+                conflict = True
+                conflicts.append(f"模型许可 {model_license} 可能与上游 {u['id']} 的 copyleft 许可 {u.get('license')} 冲突")
+            # model proprietary vs upstream copyleft
+            if any(k in mnorm for k in ['proprietary', 'closed']) and is_copyleft:
+                conflict = True
+                conflicts.append(f"闭源模型可能无法包含上游 {u['id']} 的 copyleft 代码许可 {u.get('license')}")
+
+        result_up.append({**u, 'conflict': conflict})
+
+    status = 'ok' if not conflicts else 'conflicts'
+
+    return jsonify({
+        'status': status,
+        'model_license': model_license or 'unknown',
+        'upstream': result_up,
+        'conflicts': conflicts
+    })
     return jsonify(result)
 
 # 修复后的关键部分 - get_model_lineage 函数
