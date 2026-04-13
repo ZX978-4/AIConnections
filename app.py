@@ -122,13 +122,16 @@ def health_check():
 
 @app.route('/api/models', methods=['GET'])
 def get_models():
-    """获取所有模型列表"""
+    """获取所有模型和数据集列表"""
     query = request.args.get('q', '').lower()
 
     if query:
-        filtered = [m for m in model_names if query in m.lower()]
+        # 搜索所有节点（包括模型和数据集）
+        all_nodes = nodes_df['id'].tolist()
+        filtered = [n for n in all_nodes if query in n.lower()]
         return jsonify(filtered[:20])  # 最多返回20个
 
+    # 没有查询时，仍然返回模型列表以保持向后兼容
     return jsonify(model_names)
 
 @app.route('/api/nodes', methods=['GET'])
@@ -224,13 +227,19 @@ def model_license_check(model_id):
             upstream.append({'id': src, 'license': rec.get('license')})
             queue.append(src)
     
-    # 如果是源头节点（没有上游依赖），直接返回没问题
+    # 检查当前节点的证书是否为不明确的证书
+    conflicts = []
+    if not model_license or 'unknown' in model_license.lower() or 'other' in model_license.lower():
+        conflicts.append(f"当前模型 {model_id} 许可为 '{model_license or 'unknown'}'（unknown/other），标记为隐患")
+
+    # 如果是源头节点（没有上游依赖），返回结果
     if not upstream:
+        status = 'ok' if not conflicts else 'conflicts'
         return jsonify({
-            'status': 'ok',
+            'status': status,
             'model_license': model_license or 'unknown',
             'upstream': [],
-            'conflicts': []
+            'conflicts': conflicts
         })
 
     # simple compatibility rules (heuristic):
@@ -242,7 +251,6 @@ def model_license_check(model_id):
         return lic.lower()
 
     mnorm = _norm(model_license)
-    conflicts = []
     result_up = []
 
     for u in upstream:
@@ -458,6 +466,32 @@ def get_stats():
         "dataset_count": len(nodes_df[nodes_df['type'] == 'dataset']),
         "relation_distribution": relation_counts
     })
+
+@app.route('/api/models/top-downloads', methods=['GET'])
+def get_top_downloads():
+    """获取下载量前20的模型"""
+    # 过滤出模型类型的节点
+    model_nodes = nodes_df[nodes_df['type'] == 'model']
+    # 按下载量排序，取前20
+    top_models = model_nodes.sort_values('downloads', ascending=False).head(20)
+    # 转换为JSON格式
+    result = []
+    for _, row in top_models.iterrows():
+        result.append(record_to_json(row.to_dict()))
+    return jsonify(result)
+
+@app.route('/api/datasets/top', methods=['GET'])
+def get_top_datasets():
+    """获取最热门的20个数据集"""
+    # 过滤出数据集类型的节点
+    dataset_nodes = nodes_df[nodes_df['type'] == 'dataset']
+    # 按下载量排序，取前20
+    top_datasets = dataset_nodes.sort_values('downloads', ascending=False).head(20)
+    # 转换为JSON格式
+    result = []
+    for _, row in top_datasets.iterrows():
+        result.append(record_to_json(row.to_dict()))
+    return jsonify(result)
 
 if __name__ == '__main__':
     load_data()

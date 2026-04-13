@@ -119,13 +119,194 @@ function renderRelationLegend() {
     legendItems.forEach(item => {
         const el = document.createElement('div');
         el.className = 'legend-item relation-legend-item';
+        el.setAttribute('data-relation', item.key);
         el.innerHTML = `<div class="legend-dot" style="background: ${relationColor(item.key)};"></div><span>${item.label}</span>`;
         legendContainer.appendChild(el);
     });
 }
 
-// 渲染一次关系图例
-renderRelationLegend();
+// 为图例项添加点击事件，实现过滤功能
+function addLegendItemClickEvents() {
+    const legendItems = document.querySelectorAll('.relation-legend-item');
+    legendItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const relation = this.getAttribute('data-relation');
+            filterByRelation(relation);
+        });
+    });
+}
+
+// 保存原始图数据
+let originalGraphData = null;
+
+// 过滤显示指定关系的节点和连线
+function filterByRelation(relation) {
+    // 保存原始数据（如果还没有保存）
+    if (!originalGraphData) {
+        originalGraphData = {
+            nodes: g.selectAll('.node-group').data(),
+            links: g.selectAll('.link').data()
+        };
+    }
+    
+    // 隐藏所有节点和连线
+    g.selectAll('.node-group').style('display', 'none');
+    g.selectAll('.link').style('display', 'none');
+    
+    // 显示指定关系的连线
+    const filteredLinks = g.selectAll('.link').filter(function(d) {
+        return d.relation.toLowerCase().replace(/-/g, '_') === relation;
+    });
+    filteredLinks.style('display', 'block');
+    
+    // 收集需要显示的节点ID
+    const nodeIdsToShow = new Set();
+    filteredLinks.each(function(d) {
+        nodeIdsToShow.add(d.source.id || d.source);
+        nodeIdsToShow.add(d.target.id || d.target);
+    });
+    
+    // 保留当前查询的节点
+    if (state.currentModel) {
+        nodeIdsToShow.add(state.currentModel);
+    }
+    
+    // 构建图的邻接表，用于路径查找
+    const adjacencyList = buildAdjacencyList();
+    
+    // 找出未被隐藏的节点与当前查询节点之间的路径上的所有节点
+    if (state.currentModel) {
+        const currentNodeId = state.currentModel;
+        const nodesToCheck = Array.from(nodeIdsToShow);
+        
+        nodesToCheck.forEach(nodeId => {
+            if (nodeId !== currentNodeId) {
+                const path = findPath(adjacencyList, currentNodeId, nodeId);
+                if (path) {
+                    path.forEach(nodeInPath => {
+                        nodeIdsToShow.add(nodeInPath);
+                    });
+                }
+            }
+        });
+    }
+    
+    // 显示相关节点
+    g.selectAll('.node-group').filter(function(d) {
+        return nodeIdsToShow.has(d.id);
+    }).style('display', 'block');
+    
+    // 显示连接这些节点的所有连线
+    g.selectAll('.link').filter(function(d) {
+        const sourceId = d.source.id || d.source;
+        const targetId = d.target.id || d.target;
+        return nodeIdsToShow.has(sourceId) && nodeIdsToShow.has(targetId);
+    }).style('display', 'block');
+    
+    // 更新图例项的样式，标记当前选中的关系
+    document.querySelectorAll('.relation-legend-item').forEach(item => {
+        if (item.getAttribute('data-relation') === relation) {
+            item.style.backgroundColor = 'rgba(50, 50, 50, 0.5)';
+            item.style.borderRadius = '4px';
+        } else {
+            item.style.backgroundColor = 'transparent';
+            item.style.borderRadius = '0';
+        }
+    });
+}
+
+// 构建图的邻接表
+function buildAdjacencyList() {
+    const adjacencyList = new Map();
+    
+    g.selectAll('.link').each(function(d) {
+        const sourceId = d.source.id || d.source;
+        const targetId = d.target.id || d.target;
+        
+        if (!adjacencyList.has(sourceId)) {
+            adjacencyList.set(sourceId, []);
+        }
+        if (!adjacencyList.has(targetId)) {
+            adjacencyList.set(targetId, []);
+        }
+        
+        adjacencyList.get(sourceId).push(targetId);
+        adjacencyList.get(targetId).push(sourceId);
+    });
+    
+    return adjacencyList;
+}
+
+// 查找两个节点之间的路径（BFS算法）
+function findPath(adjacencyList, start, end) {
+    if (start === end) return [start];
+    
+    const visited = new Set();
+    const queue = [[start]];
+    
+    while (queue.length > 0) {
+        const path = queue.shift();
+        const current = path[path.length - 1];
+        
+        if (visited.has(current)) continue;
+        visited.add(current);
+        
+        const neighbors = adjacencyList.get(current) || [];
+        for (const neighbor of neighbors) {
+            if (neighbor === end) {
+                return [...path, neighbor];
+            }
+            if (!visited.has(neighbor)) {
+                queue.push([...path, neighbor]);
+            }
+        }
+    }
+    
+    return null;
+}
+
+// 重置过滤器，显示所有节点和连线
+function resetFilter() {
+    // 显示所有节点和连线
+    g.selectAll('.node-group').style('display', 'block');
+    g.selectAll('.link').style('display', 'block');
+    
+    // 清除图例项的选中状态
+    document.querySelectorAll('.relation-legend-item').forEach(item => {
+        item.style.backgroundColor = 'transparent';
+        item.style.borderRadius = '0';
+    });
+    
+    // 清除原始数据
+    originalGraphData = null;
+}
+
+// 为图例添加重置按钮
+function addResetButton() {
+    const edgeLegend = document.getElementById('edge-legend');
+    if (edgeLegend) {
+        const resetButton = document.createElement('div');
+        resetButton.className = 'legend-item reset-button';
+        resetButton.style.cursor = 'pointer';
+        resetButton.style.fontWeight = 'bold';
+        resetButton.style.marginTop = '10px';
+        resetButton.style.paddingTop = '10px';
+        resetButton.style.borderTop = '1px solid #333';
+        resetButton.textContent = '重置显示';
+        resetButton.addEventListener('click', resetFilter);
+        edgeLegend.appendChild(resetButton);
+    }
+}
+
+// 重新渲染关系图例并添加点击事件
+function renderRelationLegendWithEvents() {
+    renderRelationLegend();
+    addLegendItemClickEvents();
+    addResetButton();
+}
+
+// 替换原来的renderRelationLegend调用
+renderRelationLegendWithEvents();
 
 // API调用
 async function fetchAPI(endpoint) {
@@ -162,15 +343,14 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     }, 300);
 });
 
-function renderSearchResults(models) {
+function renderSearchResults(results) {
     const container = document.getElementById('searchResults');
-    if (models.length === 0) {
-        container.innerHTML = '<div class="search-item">未找到匹配模型</div>';
+    if (results.length === 0) {
+        container.innerHTML = '<div class="search-item">未找到匹配的模型或数据集</div>';
     } else {
-        container.innerHTML = models.map(m => `
-          <div class="search-item" data-model="${m}">
-            <div>${m.split('/').pop()}</div>
-            <small>${m}</small>
+        container.innerHTML = results.map(item => `
+          <div class="search-item" data-model="${item}">
+            <div>${item}</div>
           </div>
         `).join('');
 
@@ -200,6 +380,88 @@ async function selectModel(modelId) {
     updateSidebar(data);
     updateInfoBar(data.model);
     renderGraph(data);
+    // 重新渲染图例并添加点击事件
+    setTimeout(renderRelationLegendWithEvents, 100);
+}
+
+// 加载下载量前20的模型
+async function loadTopDownloads() {
+    try {
+        const models = await fetchAPI('/models/top-downloads');
+        if (models) {
+            renderModelList(models, 'top-downloadsPanel', 'topDownloadsLoading');
+        }
+    } catch (e) {
+        console.error('加载下载量Top20模型失败:', e);
+        document.getElementById('topDownloadsLoading').textContent = '加载失败';
+    }
+}
+
+// 加载最热门的20个数据集
+async function loadTopDatasets() {
+    try {
+        const datasets = await fetchAPI('/datasets/top');
+        if (datasets) {
+            renderModelList(datasets, 'top-datasetsPanel', 'topDatasetsLoading');
+        }
+    } catch (e) {
+        console.error('加载最热门数据集失败:', e);
+        document.getElementById('topDatasetsLoading').textContent = '加载失败';
+    }
+}
+
+// 渲染模型列表
+function renderModelList(models, containerId, loadingId) {
+    const container = document.getElementById(containerId);
+    const loading = document.getElementById(loadingId);
+    
+    if (!container) return;
+    
+    // 隐藏加载提示
+    if (loading) {
+        loading.style.display = 'none';
+    }
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 渲染模型列表
+    models.forEach(model => {
+        const modelCard = document.createElement('div');
+        modelCard.className = 'relation-card';
+        modelCard.setAttribute('data-model', model.id);
+        modelCard.innerHTML = `
+            <div class="title">${model.id}</div>
+            <div class="meta">${model.author || 'Unknown'} · ${formatDownloads(model.downloads)}</div>
+            <span class="badge">${model.task}</span>
+        `;
+        container.appendChild(modelCard);
+    });
+}
+
+// 为模型列表容器添加事件委托（只绑定一次）
+function setupModelListEventListeners() {
+    // 为下载量Top20面板添加事件委托
+    const topDownloadsPanel = document.getElementById('top-downloadsPanel');
+    if (topDownloadsPanel) {
+        topDownloadsPanel.addEventListener('click', function(e) {
+            const card = e.target.closest('.relation-card');
+            if (card) {
+                selectModel(card.dataset.model);
+            }
+        });
+    }
+    
+    // 为最热门数据集面板添加事件委托
+    const topDatasetsPanel = document.getElementById('top-datasetsPanel');
+    if (topDatasetsPanel) {
+        topDatasetsPanel.addEventListener('click', function(e) {
+            const card = e.target.closest('.relation-card');
+            if (card) {
+                selectModel(card.dataset.model);
+            }
+        });
+    }
 }
 
 function updateSidebar(data) {
@@ -210,7 +472,7 @@ function updateSidebar(data) {
     if (riskResultEl) riskResultEl.innerHTML = '';
     // 当前模型
     document.getElementById('currentModelSection').style.display = 'block';
-    document.getElementById('currentModelName').textContent = data.model.id.split('/').pop();
+    document.getElementById('currentModelName').textContent = data.model.id;
     document.getElementById('currentModelMeta').textContent = `${data.model.author} · ${data.model.task} · ${formatDownloads(data.model.downloads)}`;
 
     // 统计
@@ -219,40 +481,7 @@ function updateSidebar(data) {
     // statTotal element removed from UI
     // statDepth element removed from UI
 
-    // 上游面板
-    const parentsPanel = document.getElementById('parentsPanel');
-    if (data.ancestors.length === 0) {
-        parentsPanel.innerHTML = '<div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">无上游依赖</div>';
-    } else {
-        parentsPanel.innerHTML = data.ancestors.map(a => `
-          <div class="relation-card" data-model="${a.id}">
-            <div class="title">${a.id.split('/').pop()}</div>
-            <div class="meta">${a.info.author} · ${formatDownloads(a.info.downloads)}</div>
-            <span class="badge">${a.relation} · 深度${a.depth}</span>
-          </div>
-        `).join('');
-    }
-
-    // 下游面板
-    const childrenPanel = document.getElementById('childrenPanel');
-    if (data.descendants.length === 0) {
-        childrenPanel.innerHTML = '<div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">无下游衍生</div>';
-    } else {
-        childrenPanel.innerHTML = data.descendants.map(d => `
-          <div class="relation-card" data-model="${d.id}">
-            <div class="title">${d.id.split('/').pop()}</div>
-            <div class="meta">${d.info.author} · ${formatDownloads(d.info.downloads)}</div>
-            <span class="badge">${d.relation} · 深度${d.depth}</span>
-          </div>
-        `).join('');
-    }
-
-    // 绑定卡片点击
-    document.querySelectorAll('.relation-card').forEach(card => {
-        card.addEventListener('click', () => {
-            selectModel(card.dataset.model);
-        });
-    });
+    // 卡片点击事件已在renderModelList函数中处理，无需重复绑定
 
     // 绑定证书检测按钮
     const licenseBtn = document.getElementById('licenseBtn');
@@ -285,6 +514,21 @@ function updateSidebar(data) {
                 riskResult.textContent = '安全检测失败: ' + e.message;
             }
             riskBtn.disabled = false;
+        }
+    }
+    
+    // 绑定导出供应链按钮
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.onclick = async () => {
+            if (!state.currentModel) return;
+            exportBtn.disabled = true;
+            try {
+                await exportSupplyChain(state.currentModel);
+            } catch (e) {
+                console.error('导出失败:', e);
+            }
+            exportBtn.disabled = false;
         }
     }
 }
@@ -361,10 +605,174 @@ async function runRiskCheck(modelId) {
     }
 }
 
+// 导出供应链数据
+async function exportSupplyChain(modelId) {
+    try {
+        // 获取选择的导出类型
+        const exportType = document.getElementById('exportType').value;
+        
+        if (exportType === 'json') {
+            // 导出为JSON
+            await exportAsJson(modelId);
+        } else if (exportType === 'png') {
+            // 导出为PNG图片
+            exportAsPng(modelId);
+        } else if (exportType === 'svg') {
+            // 导出为SVG矢量图
+            exportAsSvg(modelId);
+        }
+    } catch (e) {
+        console.error('导出失败:', e);
+        alert('导出失败: ' + e.message);
+    }
+}
+
+// 导出为JSON
+async function exportAsJson(modelId) {
+    try {
+        // 获取当前模型的供应链数据
+        const res = await fetch(`${API_BASE}/model/${encodeURIComponent(modelId)}/lineage?depth=99`);
+        if (!res.ok) {
+            const txt = await res.text();
+            alert('导出失败: ' + res.status + ' ' + txt);
+            return;
+        }
+        const data = await res.json();
+
+        // 准备导出数据
+        const exportData = {
+            model: data.model,
+            ancestors: data.ancestors,
+            descendants: data.descendants,
+            stats: data.stats,
+            export_time: new Date().toISOString()
+        };
+
+        // 创建JSON文件并下载
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${modelId.split('/').pop()}_supply_chain.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // 显示成功消息
+        alert('供应链数据已成功导出为JSON');
+    } catch (e) {
+        console.error('导出失败:', e);
+        alert('导出失败: ' + e.message);
+    }
+}
+
+// 导出为PNG图片
+function exportAsPng(modelId) {
+    try {
+        // 获取SVG元素
+        const svg = document.querySelector('#graph svg');
+        if (!svg) {
+            alert('未找到图形元素');
+            return;
+        }
+        
+        // 克隆SVG元素，确保导出完整的图形
+        const clonedSvg = svg.cloneNode(true);
+        
+        // 确保克隆的SVG有正确的尺寸
+        clonedSvg.setAttribute('width', svg.clientWidth);
+        clonedSvg.setAttribute('height', svg.clientHeight);
+        
+        // 转换SVG为XML字符串
+        const svgData = new XMLSerializer().serializeToString(clonedSvg);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+        
+        // 创建图像对象
+        const img = new Image();
+        img.onload = function() {
+            // 创建Canvas元素
+            const canvas = document.createElement('canvas');
+            canvas.width = svg.clientWidth;
+            canvas.height = svg.clientHeight;
+            
+            // 绘制图像到Canvas
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#121212'; // 背景色
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            
+            // 转换Canvas为PNG并下载
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${modelId.split('/').pop()}_supply_chain.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // 显示成功消息
+                alert('供应链图形已成功导出为PNG');
+            }, 'image/png');
+            
+            // 释放URL
+            URL.revokeObjectURL(url);
+        };
+        
+        // 设置图像源
+        img.src = url;
+    } catch (e) {
+        console.error('导出失败:', e);
+        alert('导出失败: ' + e.message);
+    }
+}
+
+// 导出为SVG矢量图
+function exportAsSvg(modelId) {
+    try {
+        // 获取SVG元素
+        const svg = document.querySelector('#graph svg');
+        if (!svg) {
+            alert('未找到图形元素');
+            return;
+        }
+        
+        // 克隆SVG元素，确保导出完整的图形
+        const clonedSvg = svg.cloneNode(true);
+        
+        // 确保克隆的SVG有正确的尺寸
+        clonedSvg.setAttribute('width', svg.clientWidth);
+        clonedSvg.setAttribute('height', svg.clientHeight);
+        
+        // 转换SVG为XML字符串
+        const svgData = new XMLSerializer().serializeToString(clonedSvg);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+        
+        // 创建下载链接
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${modelId.split('/').pop()}_supply_chain.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // 显示成功消息
+        alert('供应链图形已成功导出为SVG');
+    } catch (e) {
+        console.error('导出失败:', e);
+        alert('导出失败: ' + e.message);
+    }
+}
+
 function updateInfoBar(model) {
     document.getElementById('infoBar').style.display = 'flex';
-    document.getElementById('infoName').textContent = model.id.split('/').pop();
-    document.getElementById('infoAuthor').textContent = model.author;
+    document.getElementById('infoName').textContent = model.id;
+    document.getElementById('infoAuthor').textContent = model.author || 'Unknown';
     document.getElementById('infoDownloads').textContent = formatDownloads(model.downloads);
 }
 
@@ -585,7 +993,7 @@ function renderGraph(data) {
         })
         .style("font-size", d => d.isCenter ? "12px" : `${Math.max(9, 11 - Math.abs(d.depth))}px`)
         .style("fill", d => d.isCenter ? "#ffd700" : "#888")
-        .text(d => d.id.split('/').pop());
+        .text(d => d.id);
 }
 
 // 标签切换
@@ -618,4 +1026,11 @@ fetchAPI('/health').then(data => {
     if (data && !loadingDiv.empty()) {
         loadingDiv.text('搜索模型开始探索...');
     }
+});
+
+// 页面加载时加载热门模型和数据集列表，并设置事件监听器
+window.addEventListener('load', function() {
+    loadTopDownloads();
+    loadTopDatasets();
+    setupModelListEventListeners();
 });

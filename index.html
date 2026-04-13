@@ -32,6 +32,12 @@
                     <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
                         <button class="btn" id="licenseBtn" style="font-size:12px;padding:6px 8px;">🔏 证书检测</button>
                         <button class="btn" id="riskBtn" style="font-size:12px;padding:6px 8px;">🛡️ 安全检测</button>
+                        <select id="exportType" style="font-size:12px;padding:6px 8px; background:#1a1a1a; color:#ccc; border:1px solid #333; border-radius:4px;">
+                            <option value="json">JSON</option>
+                            <option value="png">图片 (PNG)</option>
+                            <option value="svg">矢量图 (SVG)</option>
+                        </select>
+                        <button class="btn" id="exportBtn" style="font-size:12px;padding:6px 8px;">📤 导出</button>
                     </div>
                     <div id="licenseResult" style="margin-top:8px; font-size:12px;color:#ccc;" aria-live="polite"></div>
                     <div id="riskResult" style="margin-top:8px; font-size:12px;color:#ccc;" aria-live="polite"></div>
@@ -40,22 +46,22 @@
 
             <!-- 深度控制 已移除：默认显示最高层 -->
 
-            <!-- 关系标签页 -->
+            <!-- 热门模型 -->
             <div class="section">
                 <div class="tabs">
-                    <div class="tab active" data-tab="parents">上游</div>
-                    <div class="tab" data-tab="children">下游</div>
+                    <div class="tab active" data-tab="top-downloads">下载量Top20</div>
+                    <div class="tab" data-tab="top-datasets">最热门20数据集</div>
                 </div>
 
-                <div class="panel active" id="parentsPanel">
-                    <div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">
-                        搜索并选择模型查看上游依赖
+                <div class="panel active" id="top-downloadsPanel">
+                    <div style="color: #666; font-size: 12px; text-align: center; padding: 20px;" id="topDownloadsLoading">
+                        加载中...
                     </div>
                 </div>
 
-                <div class="panel" id="childrenPanel">
-                    <div style="color: #666; font-size: 12px; text-align: center; padding: 20px;">
-                        搜索并选择模型查看下游衍生
+                <div class="panel" id="top-datasetsPanel">
+                    <div style="color: #666; font-size: 12px; text-align: center; padding: 20px;" id="topDatasetsLoading">
+                        加载中...
                     </div>
                 </div>
             </div>
