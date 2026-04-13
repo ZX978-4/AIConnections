@@ -11,6 +11,9 @@ import pandas as pd
 import numpy as np
 import os
 from pathlib import Path
+import requests
+import urllib.parse as urllib
+import json
 
 app = Flask(__name__, static_folder=None)
 CORS(app)  # 允许跨域，供HTML前端调用
@@ -220,6 +223,15 @@ def model_license_check(model_id):
             rec = record_to_json(src_info.iloc[0].to_dict())
             upstream.append({'id': src, 'license': rec.get('license')})
             queue.append(src)
+    
+    # 如果是源头节点（没有上游依赖），直接返回没问题
+    if not upstream:
+        return jsonify({
+            'status': 'ok',
+            'model_license': model_license or 'unknown',
+            'upstream': [],
+            'conflicts': []
+        })
 
     # simple compatibility rules (heuristic):
     # - If model license contains 'non-commercial' or 'nc' -> warn if upstream license is permissive that allows commercial use
@@ -275,7 +287,6 @@ def model_license_check(model_id):
         'upstream': result_up,
         'conflicts': conflicts
     })
-    return jsonify(result)
 
 # 修复后的关键部分 - get_model_lineage 函数
 
@@ -358,6 +369,82 @@ def get_model_lineage(model_id):
             "depth": depth
         }
     })
+
+def pre_check_risk(model_id):
+    """预检模型风险等级
+    
+    根据风险充分条件表检查模型风险，优先检查元数据
+    如果满足任何一个充分条件，立即返回风险等级和原因
+    
+    Args:
+        model_id: 模型ID
+    
+    Returns:
+        dict: 包含风险等级和原因的字典
+    """
+    # 模拟获取模型的详细信息，实际应用中可能需要从数据库或API获取
+    model_info = nodes_df[nodes_df['id'] == model_id]
+    if model_info.empty:
+        return {"error": "Model not found"}
+    
+    model_rec = record_to_json(model_info.iloc[0].to_dict())
+    
+    # 模拟元数据和检测报告数据
+    # 实际应用中，这些数据可能需要从其他服务或数据库获取
+    metadata = {
+        "author_unverified": False,  # 假设默认作者已验证
+        "is_hot_model_name_clone": False,  # 假设默认不是热门模型名称克隆
+        "has_pickle_files": False,  # 假设默认没有pickle文件
+        "has_safetensors": True,  # 假设默认有safetensors文件
+        "trust_remote_code": False,  # 假设默认不信任远程代码
+        "json": {"status": "safe"}  # 假设默认检测报告状态为安全
+    }
+    
+    # 优先检查元数据
+    # 1. 检查检测报告状态
+    if metadata.get("json", {}).get("status") == "unsafe":
+        return {
+            "risk_level": "🔴 INFECTED",
+            "reason": "检测报告显示模型不安全"
+        }
+    
+    # 2. 检查文件格式风险
+    if metadata.get("has_pickle_files") and not metadata.get("has_safetensors"):
+        return {
+            "risk_level": "🟠 HIGH RISK",
+            "reason": "模型包含pickle文件但不包含safetensors文件，格式高危"
+        }
+    
+    # 3. 检查加载方式风险
+    if metadata.get("trust_remote_code"):
+        return {
+            "risk_level": "🟠 HIGH RISK",
+            "reason": "模型信任远程代码，逻辑不可控"
+        }
+    
+    # 4. 检查元数据风险
+    if metadata.get("author_unverified") and metadata.get("is_hot_model_name_clone"):
+        return {
+            "risk_level": "🟡 SUSPICIOUS",
+            "reason": "作者未验证且模型名称疑似热门模型克隆，身份可疑"
+        }
+    
+    # 无风险
+    return {
+        "risk_level": "🟢 SAFE",
+        "reason": "模型通过所有安全检查"
+    }
+
+
+@app.route('/api/model/<path:model_id>/risk_check', methods=['GET'])
+def model_risk_check(model_id):
+    """检查模型风险等级"""
+    model_id = request.view_args['model_id']
+    result = pre_check_risk(model_id)
+    if "error" in result:
+        return jsonify(result), 404
+    return jsonify(result)
+
 
 @app.route('/api/stats', methods=['GET'])
 def get_stats():

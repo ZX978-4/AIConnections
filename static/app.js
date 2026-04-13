@@ -42,20 +42,21 @@ svg.call(zoom);
 const loadingDiv = d3.select("#graph").select(".loading");
 const tooltipEl = document.getElementById('tooltip');
 
-// relation -> muted dark color mapping
+// relation -> color mapping (distinct from node colors)
 function relationColor(relation) {
     if (!relation) return '#3b3b3b';
-    const r = relation.toLowerCase();
-    // clearer muted palette for better visual distinction
+    // Convert hyphens to underscores to handle both formats
+    const r = relation.toLowerCase().replace(/-/g, '_');
+    // darker color palette for dark theme interface
     const map = {
-        'trained_on': '#3b3b3b', // dark gray
-        'based_on': '#3f5160',   // muted slate
-        'fine_tune': '#5a3b3b',   // muted maroon
-        'quantization': '#4a4a29',// muted olive
-        'merge': '#473547',       // muted plum
-        'adapter': '#2f5047',     // muted teal
-        'distillation': '#4a4f3f',// muted moss
-        'moe': '#3a3a3a'          // neutral dark
+        'trained_on': '#c0392b',   // dark red - distinct from upstream node color
+        'based_on': '#2980b9',     // dark blue - distinct from downstream node color
+        'fine_tune': '#7f8c8d',     // dark gray - as requested
+        'quantization': '#34495e',  // dark blue - as requested
+        'merge': '#27ae60',         // dark green - complementary color
+        'adapter': '#16a085',       // dark teal - complementary color
+        'distillation': '#2c3e50',  // darker blue-gray - complementary color
+        'moe': '#5d6d7e'            // darker gray - distinct from fine_tune
     };
     return map[r] || '#3b3b3b';
 }
@@ -77,9 +78,26 @@ function lightenColor(hex, percent) {
     }
 }
 
+// 切换图例显示/隐藏
+function toggleLegend(id) {
+    const content = document.getElementById(id);
+    const header = content.previousElementSibling;
+    const icon = header.querySelector('.toggle-icon');
+    
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        icon.textContent = '▲';
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        content.style.display = 'none';
+        icon.textContent = '▼';
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
 // 在页面上渲染关系颜色图例，便于辨识
 function renderRelationLegend() {
-    const legendContainer = document.querySelector('.legend');
+    const legendContainer = document.getElementById('edge-legend');
     if (!legendContainer) return;
 
     // 定义展示顺序与中文说明
@@ -94,18 +112,15 @@ function renderRelationLegend() {
         { key: 'moe', label: 'moe（专家模型 MoE）' }
     ];
 
-    // 在现有图例前插入关系图例标题
-    const header = document.createElement('div');
-    header.className = 'legend-title';
-    header.textContent = '关系颜色 (relation)';
-    legendContainer.insertBefore(header, legendContainer.firstChild);
+    // 清空现有内容
+    legendContainer.innerHTML = '';
 
     // 插入每一项
     legendItems.forEach(item => {
         const el = document.createElement('div');
         el.className = 'legend-item relation-legend-item';
         el.innerHTML = `<div class="legend-dot" style="background: ${relationColor(item.key)};"></div><span>${item.label}</span>`;
-        legendContainer.insertBefore(el, header.nextSibling);
+        legendContainer.appendChild(el);
     });
 }
 
@@ -188,9 +203,11 @@ async function selectModel(modelId) {
 }
 
 function updateSidebar(data) {
-    // 清除先前的证书检测结果（切换模型时避免混淆）
+    // 清除先前的检测结果（切换模型时避免混淆）
     const licenseResultEl = document.getElementById('licenseResult');
     if (licenseResultEl) licenseResultEl.innerHTML = '';
+    const riskResultEl = document.getElementById('riskResult');
+    if (riskResultEl) riskResultEl.innerHTML = '';
     // 当前模型
     document.getElementById('currentModelSection').style.display = 'block';
     document.getElementById('currentModelName').textContent = data.model.id.split('/').pop();
@@ -253,6 +270,23 @@ function updateSidebar(data) {
             licenseBtn.disabled = false;
         }
     }
+    
+    // 绑定安全检测按钮
+    const riskBtn = document.getElementById('riskBtn');
+    const riskResult = document.getElementById('riskResult');
+    if (riskBtn) {
+        riskBtn.onclick = async () => {
+            if (!state.currentModel) return;
+            riskBtn.disabled = true;
+            riskResult.textContent = '正在进行安全检测...';
+            try {
+                await runRiskCheck(state.currentModel);
+            } catch (e) {
+                riskResult.textContent = '安全检测失败: ' + e.message;
+            }
+            riskBtn.disabled = false;
+        }
+    }
 }
 
 // HTML转义辅助
@@ -300,6 +334,30 @@ async function runLicenseCheck(modelId) {
         licenseResult.innerHTML = html;
     } catch (e) {
         licenseResult.textContent = '证书检测出错: ' + e.message;
+    }
+}
+
+// 安全风险检测：请求后端 /risk_check 并展示结果
+async function runRiskCheck(modelId) {
+    const riskResult = document.getElementById('riskResult');
+    riskResult.innerHTML = '';
+
+    try {
+        const res = await fetch(`${API_BASE}/model/${encodeURIComponent(modelId)}/risk_check`);
+        if (!res.ok) {
+            const txt = await res.text();
+            riskResult.textContent = '后端返回错误: ' + res.status + ' ' + txt;
+            return;
+        }
+        const json = await res.json();
+
+        // 渲染结构化结果
+        let html = `<div style="font-weight:600;">安全检测: ${escapeHtml(json.risk_level || '-')}</div>`;
+        html += `<div style="margin-top:6px;font-size:12px;">原因: ${escapeHtml(json.reason || '无')}</div>`;
+
+        riskResult.innerHTML = html;
+    } catch (e) {
+        riskResult.textContent = '安全检测出错: ' + e.message;
     }
 }
 
@@ -420,18 +478,8 @@ function renderGraph(data) {
     // 绘制连线 - 使用贝塞尔曲线
     // helper: relation -> dash pattern
     function relationDash(relation) {
-        const r = (relation || '').toLowerCase();
-        const map = {
-            'trained_on': '',        // solid
-            'based_on': '6 3',       // long dash
-            'fine_tune': '4 3',      // medium dash
-            'quantization': '2 4',   // dotted-ish
-            'merge': '8 4 2 4',      // complex
-            'adapter': '3 3',        // short dash
-            'distillation': '2 6',   // sparse dots
-            'moe': ''                // solid
-        };
-        return map[r] || '';
+        // All relations use solid lines as requested
+        return '';
     }
 
     const link = g.selectAll(".link")
@@ -522,10 +570,10 @@ function renderGraph(data) {
             return baseSize + popularityBonus;
         })
         .attr("fill", d => {
-            if (d.isCenter) return "#ffd700";
-            if (d.type === 'dataset') return "#9d4edd";
-            if (d.depth < 0) return "#ff6b6b";  // 上游 - 红色
-            return "#61dafb";  // 下游 - 蓝色
+            if (d.isCenter) return "#ffeb3b";  // light gold - distinct from relation colors
+            if (d.type === 'dataset') return "#ba68c8";  // light purple - distinct from relation colors
+            if (d.depth < 0) return "#ff8a80";  // light red - distinct from relation colors
+            return "#81d4fa";  // light blue - distinct from relation colors
         });
 
     // 节点标签
@@ -553,12 +601,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 // 深度切换
 // depthSelect control removed; depth is fixed to show maximum by default
 
-// 刷新
-document.getElementById('refreshBtn').addEventListener('click', () => {
-    if (state.currentModel) {
-        selectModel(state.currentModel);
-    }
-});
+
 
 // 窗口调整
 window.addEventListener('resize', () => {
